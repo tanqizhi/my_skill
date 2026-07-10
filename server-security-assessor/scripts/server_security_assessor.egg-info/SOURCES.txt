@@ -1,8 +1,0 @@
-pyproject.toml
-scripts/security_assessor/__init__.py
-scripts/server_security_assessor.egg-info/PKG-INFO
-scripts/server_security_assessor.egg-info/SOURCES.txt
-scripts/server_security_assessor.egg-info/dependency_links.txt
-scripts/server_security_assessor.egg-info/requires.txt
-scripts/server_security_assessor.egg-info/top_level.txt
-tests/test_skill_contract.py
