@@ -20,6 +20,7 @@ class AssessmentRequest:
     mode: AssessmentMode
     coverage: Coverage
     external_targets: tuple[str, ...] = ()
+    external_ports: tuple[int, ...] = ()
     internal_paths: tuple[str, ...] = ()
     report_directed: bool = False
     allow_safe_poc: bool = False
@@ -30,4 +31,6 @@ class AssessmentRequest:
         if self.mode in (AssessmentMode.EXTERNAL, AssessmentMode.BOTH):
             if not self.external_targets:
                 raise ValueError("external mode requires at least one target")
+        if any(port < 1 or port > 65535 for port in self.external_ports):
+            raise ValueError("external ports must be between 1 and 65535")
 
