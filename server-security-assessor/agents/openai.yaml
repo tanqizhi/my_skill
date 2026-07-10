@@ -1,0 +1,4 @@
+interface:
+  display_name: "Server Security Assessor"
+  short_description: "评估服务器外部暴露、Linux 主机安全与取证风险"
+  default_prompt: "使用 $server-security-assessor 对授权服务器执行外部、SSH 或组合安全评估。"
