@@ -16,6 +16,13 @@ class Coverage(str, Enum):
 
 
 @dataclass(frozen=True)
+class VerificationTarget:
+    url: str
+    tool: str
+    selector: str
+
+
+@dataclass(frozen=True)
 class AssessmentRequest:
     mode: AssessmentMode
     coverage: Coverage
@@ -24,6 +31,7 @@ class AssessmentRequest:
     internal_paths: tuple[str, ...] = ()
     report_directed: bool = False
     allow_safe_poc: bool = False
+    verifications: tuple[VerificationTarget, ...] = ()
     custom_baselines: tuple[str, ...] = ()
     forensic_mode: bool = False
 
@@ -55,4 +63,3 @@ class ParseResult:
     accepted: int
     rejected: int
     errors: tuple[str, ...] = ()
-

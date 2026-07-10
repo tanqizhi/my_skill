@@ -87,26 +87,72 @@ def build_external_plan(
                 purpose="bounded port and service discovery",
             ))
 
-        commands.append(PlannedCommand(
-            tool="nuclei",
-            argv=(
-                tools.nuclei,
-                "-u",
-                target,
-                "-jsonl",
-                "-o",
-                os.path.join(output_dir, f"nuclei-{index}.jsonl"),
-                "-rate-limit",
-                "25",
-                "-c",
-                "5",
-                "-bulk-size",
-                "5",
-                "-no-color",
-                "-silent",
-            ),
-            purpose="template-based vulnerability and exposure checks",
-        ))
+        if not request.report_directed:
+            commands.append(PlannedCommand(
+                tool="nuclei",
+                argv=(
+                    tools.nuclei,
+                    "-u",
+                    target,
+                    "-jsonl",
+                    "-o",
+                    os.path.join(output_dir, f"nuclei-{index}.jsonl"),
+                    "-rate-limit",
+                    "25",
+                    "-c",
+                    "5",
+                    "-bulk-size",
+                    "5",
+                    "-no-color",
+                    "-silent",
+                ),
+                purpose="template-based vulnerability and exposure checks",
+            ))
+
+    if request.report_directed:
+        for index, verification in enumerate(request.verifications):
+            if verification.tool == "nuclei":
+                commands.append(PlannedCommand(
+                    tool="nuclei",
+                    argv=(
+                        tools.nuclei,
+                        "-u",
+                        verification.url,
+                        "-t",
+                        verification.selector,
+                        "-jsonl",
+                        "-o",
+                        os.path.join(output_dir, f"nuclei-verify-{index}.jsonl"),
+                        "-rate-limit",
+                        "10",
+                        "-c",
+                        "2",
+                        "-no-color",
+                        "-silent",
+                    ),
+                    purpose="report-directed Nuclei verification",
+                ))
+            elif (
+                verification.tool == "xray"
+                and enable_xray
+                and tools.chaitin_xray
+            ):
+                commands.append(PlannedCommand(
+                    tool="chaitin-xray",
+                    argv=(
+                        tools.chaitin_xray,
+                        "webscan",
+                        "--plugins",
+                        verification.selector,
+                        "--url",
+                        verification.url,
+                        "--json-output",
+                        os.path.join(output_dir, f"xray-verify-{index}.json"),
+                    ),
+                    purpose="report-directed Xray verification",
+                    risk="bounded-active",
+                ))
+        return tuple(commands)
 
     if enable_xray and tools.chaitin_xray:
         for index, target in enumerate(request.external_targets):
@@ -120,13 +166,12 @@ def build_external_plan(
             )
             if not has_matching_web_service:
                 continue
-            scan_flag = "--url" if request.report_directed else "--basic-crawler"
             commands.append(PlannedCommand(
                 tool="chaitin-xray",
                 argv=(
                     tools.chaitin_xray,
                     "webscan",
-                    scan_flag,
+                    "--basic-crawler",
                     target,
                     "--json-output",
                     os.path.join(output_dir, f"xray-{index}.json"),

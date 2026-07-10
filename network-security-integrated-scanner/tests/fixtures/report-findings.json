@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "findings": [
+    {
+      "report_id": "VULN-001",
+      "title": "Example Web vulnerability",
+      "target": "app.example.test",
+      "port": 443,
+      "protocol": "https",
+      "url": "https://app.example.test/admin?id=1",
+      "vulnerability_id": "CVE-2024-1234",
+      "source_ref": "page 7",
+      "verification_method": "nuclei:CVE-2024-1234"
+    }
+  ]
+}
+

@@ -38,7 +38,7 @@ def test_web_target_adds_nuclei_and_optional_xray_as_argv():
     assert all(isinstance(cmd.argv, tuple) for cmd in plan)
 
 
-def test_report_validation_skips_discovery_and_xray_crawler():
+def test_report_validation_without_exact_method_plans_no_broad_scan():
     plan = build_external_plan(
         external_request(report_directed=True),
         open_services=(("app.example.test", 443, "https"),),
@@ -47,10 +47,7 @@ def test_report_validation_skips_discovery_and_xray_crawler():
         output_dir="/tmp/assessment-run",
     )
 
-    assert not any(cmd.tool == "nmap" for cmd in plan)
-    argv = [arg for cmd in plan for arg in cmd.argv]
-    assert "--basic-crawler" not in argv
-    assert "--url" in argv
+    assert plan == ()
 
 
 def test_internal_only_request_produces_no_external_commands():
