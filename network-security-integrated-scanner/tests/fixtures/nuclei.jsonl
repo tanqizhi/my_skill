@@ -1,0 +1,3 @@
+{"template-id":"CVE-2024-1234","type":"http","host":"https://app.example.test","matched-at":"https://app.example.test/admin","info":{"name":"Example Web vulnerability","severity":"high","classification":{"cve-id":["CVE-2024-1234"]}}}
+{"template-id":"broken","info":
+

@@ -1,0 +1,11 @@
+[
+  {
+    "plugin": "sqldet",
+    "vuln_class": "SQL Injection",
+    "level": "high",
+    "cve": "CVE-2024-1234",
+    "target": {"url": "https://app.example.test/admin?id=1"},
+    "detail": {"addr": "https://app.example.test/admin?id=1", "payload": "must-not-copy-raw-payload"}
+  }
+]
+
