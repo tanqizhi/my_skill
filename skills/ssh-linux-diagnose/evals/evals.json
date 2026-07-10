@@ -1,0 +1,26 @@
+[
+  {
+    "prompt": "ssh to prod-api-01 and check why nginx returns 502; do not change anything first."
+  },
+  {
+    "prompt": "Check whether someone ran poweroff or halt on this Linux machine last night."
+  },
+  {
+    "prompt": "The server disk is full. Diagnose the cause, but ask before deleting anything."
+  },
+  {
+    "prompt": "The scanner says web-01 has an OpenSSL CVE. Verify and fix it."
+  },
+  {
+    "prompt": "A sudo local privilege escalation vulnerability was announced. Check whether prod-batch-02 is affected."
+  },
+  {
+    "prompt": "Check whether this server has signs of being attacked or compromised."
+  },
+  {
+    "prompt": "The account manager says the business is slow. Check whether the server has clues."
+  },
+  {
+    "prompt": "This host is only reachable from our internal network. Give me commands to run manually and I will paste the output back."
+  }
+]

@@ -35,10 +35,10 @@ Expected: branch is created and `.venv/bin/python --version` reports Python 3.11
 
 **Files:**
 - Create: `.gitignore`
-- Create: `network-security-integrated-scanner/SKILL.md`
-- Create: `network-security-integrated-scanner/pyproject.toml`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/__init__.py`
-- Create: `network-security-integrated-scanner/tests/test_skill_contract.py`
+- Create: `skills/network-security-integrated-scanner/SKILL.md`
+- Create: `skills/network-security-integrated-scanner/pyproject.toml`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/__init__.py`
+- Create: `skills/network-security-integrated-scanner/tests/test_skill_contract.py`
 
 **Step 1: Write the failing contract test**
 
@@ -70,7 +70,7 @@ def test_skill_references_only_existing_local_resources():
 
 **Step 2: Run the test and verify it fails**
 
-Run: `.venv/bin/python -m pip install -e 'network-security-integrated-scanner[dev]' && .venv/bin/pytest network-security-integrated-scanner/tests/test_skill_contract.py -v`
+Run: `.venv/bin/python -m pip install -e 'network-security-integrated-scanner[dev]' && .venv/bin/pytest skills/network-security-integrated-scanner/tests/test_skill_contract.py -v`
 
 Expected: FAIL because `SKILL.md` and referenced resources are absent or incomplete.
 
@@ -99,7 +99,7 @@ Add placeholder reference files named by the skeleton so the second contract tes
 
 **Step 4: Run the contract test**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_skill_contract.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_skill_contract.py -v`
 
 Expected: PASS.
 
@@ -113,10 +113,10 @@ git commit -m "feat: scaffold server security assessor skill"
 ### Task 2: Implement the canonical request model and scope gate
 
 **Files:**
-- Create: `network-security-integrated-scanner/scripts/security_assessor/models.py`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/scope.py`
-- Create: `network-security-integrated-scanner/tests/test_scope.py`
-- Create: `network-security-integrated-scanner/references/scope-policy.md`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/models.py`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/scope.py`
+- Create: `skills/network-security-integrated-scanner/tests/test_scope.py`
+- Create: `skills/network-security-integrated-scanner/references/scope-policy.md`
 
 **Step 1: Write failing scope tests**
 
@@ -160,7 +160,7 @@ def test_report_directed_request_cannot_expand_scope():
 
 **Step 2: Run the tests and verify failure**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_scope.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_scope.py -v`
 
 Expected: FAIL with missing `models` and `scope` modules.
 
@@ -172,26 +172,26 @@ Document the same rules in `scope-policy.md`, including Windows external-only va
 
 **Step 4: Run tests**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_scope.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_scope.py -v`
 
 Expected: PASS.
 
 **Step 5: Commit**
 
 ```bash
-git add network-security-integrated-scanner/scripts network-security-integrated-scanner/references/scope-policy.md network-security-integrated-scanner/tests/test_scope.py
+git add skills/network-security-integrated-scanner/scripts skills/network-security-integrated-scanner/references/scope-policy.md skills/network-security-integrated-scanner/tests/test_scope.py
 git commit -m "feat: enforce assessment mode and target scope"
 ```
 
 ### Task 3: Add tool preflight and reviewed command planning
 
 **Files:**
-- Create: `network-security-integrated-scanner/scripts/security_assessor/preflight.py`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/command_plan.py`
-- Create: `network-security-integrated-scanner/tests/test_preflight.py`
-- Create: `network-security-integrated-scanner/tests/test_command_plan.py`
-- Create: `network-security-integrated-scanner/references/tool-installation.md`
-- Create: `network-security-integrated-scanner/references/external-assessment.md`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/preflight.py`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/command_plan.py`
+- Create: `skills/network-security-integrated-scanner/tests/test_preflight.py`
+- Create: `skills/network-security-integrated-scanner/tests/test_command_plan.py`
+- Create: `skills/network-security-integrated-scanner/references/tool-installation.md`
+- Create: `skills/network-security-integrated-scanner/references/external-assessment.md`
 
 **Step 1: Write failing tests**
 
@@ -220,7 +220,7 @@ Also test that an Internal-only request produces no Nmap/Nuclei/Xray commands, a
 
 **Step 2: Verify failures**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_preflight.py network-security-integrated-scanner/tests/test_command_plan.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_preflight.py skills/network-security-integrated-scanner/tests/test_command_plan.py -v`
 
 Expected: FAIL because the modules do not exist.
 
@@ -238,7 +238,7 @@ Expected: FAIL because the modules do not exist.
 
 **Step 4: Run tests**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_preflight.py network-security-integrated-scanner/tests/test_command_plan.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_preflight.py skills/network-security-integrated-scanner/tests/test_command_plan.py -v`
 
 Expected: PASS.
 
@@ -252,14 +252,14 @@ git commit -m "feat: plan reviewed external security commands"
 ### Task 4: Normalize Nmap, Nuclei, and Xray results
 
 **Files:**
-- Create: `network-security-integrated-scanner/scripts/security_assessor/parsers/__init__.py`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/parsers/nmap.py`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/parsers/nuclei.py`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/parsers/xray.py`
-- Create: `network-security-integrated-scanner/tests/fixtures/nmap.xml`
-- Create: `network-security-integrated-scanner/tests/fixtures/nuclei.jsonl`
-- Create: `network-security-integrated-scanner/tests/fixtures/xray.json`
-- Create: `network-security-integrated-scanner/tests/test_parsers.py`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/parsers/__init__.py`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/parsers/nmap.py`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/parsers/nuclei.py`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/parsers/xray.py`
+- Create: `skills/network-security-integrated-scanner/tests/fixtures/nmap.xml`
+- Create: `skills/network-security-integrated-scanner/tests/fixtures/nuclei.jsonl`
+- Create: `skills/network-security-integrated-scanner/tests/fixtures/xray.json`
+- Create: `skills/network-security-integrated-scanner/tests/test_parsers.py`
 
 **Step 1: Write fixture-backed failing tests**
 
@@ -274,7 +274,7 @@ def test_xray_missing_output_is_empty_only_after_success(tmp_path):
 
 **Step 2: Verify failure**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_parsers.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_parsers.py -v`
 
 Expected: FAIL with missing parser modules and model fields.
 
@@ -284,25 +284,25 @@ Use `xml.etree.ElementTree` for Nmap and `json` for Nuclei/Xray. Reject malforme
 
 **Step 4: Run parser tests**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_parsers.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_parsers.py -v`
 
 Expected: PASS with all three fixtures normalized.
 
 **Step 5: Commit**
 
 ```bash
-git add network-security-integrated-scanner/scripts/security_assessor/parsers network-security-integrated-scanner/tests
+git add skills/network-security-integrated-scanner/scripts/security_assessor/parsers skills/network-security-integrated-scanner/tests
 git commit -m "feat: normalize external scanner evidence"
 ```
 
 ### Task 5: Implement report-directed validation
 
 **Files:**
-- Create: `network-security-integrated-scanner/schemas/report-findings.schema.json`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/report_input.py`
-- Create: `network-security-integrated-scanner/references/report-validation.md`
-- Create: `network-security-integrated-scanner/tests/fixtures/report-findings.json`
-- Create: `network-security-integrated-scanner/tests/test_report_input.py`
+- Create: `skills/network-security-integrated-scanner/schemas/report-findings.schema.json`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/report_input.py`
+- Create: `skills/network-security-integrated-scanner/references/report-validation.md`
+- Create: `skills/network-security-integrated-scanner/tests/fixtures/report-findings.json`
+- Create: `skills/network-security-integrated-scanner/tests/test_report_input.py`
 
 **Step 1: Write failing tests**
 
@@ -310,7 +310,7 @@ Test a canonical imported finding with target, URL/port, vulnerability identifie
 
 **Step 2: Verify failure**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_report_input.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_report_input.py -v`
 
 Expected: FAIL because the schema/loader is missing.
 
@@ -320,26 +320,26 @@ Support direct parsing for canonical JSON and common CSV columns. For PDF, HTML,
 
 **Step 4: Run tests and schema validation**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_report_input.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_report_input.py -v`
 
 Expected: PASS; every fixture row retains its report provenance.
 
 **Step 5: Commit**
 
 ```bash
-git add network-security-integrated-scanner/schemas network-security-integrated-scanner/scripts network-security-integrated-scanner/references/report-validation.md network-security-integrated-scanner/tests
+git add skills/network-security-integrated-scanner/schemas skills/network-security-integrated-scanner/scripts skills/network-security-integrated-scanner/references/report-validation.md skills/network-security-integrated-scanner/tests
 git commit -m "feat: constrain vulnerability report validation"
 ```
 
 ### Task 6: Add Linux SSH and forensic check catalogs
 
 **Files:**
-- Create: `network-security-integrated-scanner/references/checks/linux-checks.json`
-- Create: `network-security-integrated-scanner/references/checks/forensic-checks.json`
-- Create: `network-security-integrated-scanner/references/linux-internal-assessment.md`
-- Create: `network-security-integrated-scanner/references/forensics.md`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/ssh_plan.py`
-- Create: `network-security-integrated-scanner/tests/test_ssh_plan.py`
+- Create: `skills/network-security-integrated-scanner/references/checks/linux-checks.json`
+- Create: `skills/network-security-integrated-scanner/references/checks/forensic-checks.json`
+- Create: `skills/network-security-integrated-scanner/references/linux-internal-assessment.md`
+- Create: `skills/network-security-integrated-scanner/references/forensics.md`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/ssh_plan.py`
+- Create: `skills/network-security-integrated-scanner/tests/test_ssh_plan.py`
 
 **Step 1: Write failing catalog/plan tests**
 
@@ -353,7 +353,7 @@ Validate that every check has `id`, supported distro families, purpose, argv or 
 
 **Step 2: Verify failure**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_ssh_plan.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_ssh_plan.py -v`
 
 Expected: FAIL because catalogs and planner are absent.
 
@@ -365,26 +365,26 @@ Cover Ubuntu/Debian and RHEL/CentOS/Rocky/Alma families. The standard catalog in
 
 **Step 4: Run tests**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_ssh_plan.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_ssh_plan.py -v`
 
 Expected: PASS; no catalog item writes to the target.
 
 **Step 5: Commit**
 
 ```bash
-git add network-security-integrated-scanner/references network-security-integrated-scanner/scripts/security_assessor/ssh_plan.py network-security-integrated-scanner/tests/test_ssh_plan.py
+git add skills/network-security-integrated-scanner/references skills/network-security-integrated-scanner/scripts/security_assessor/ssh_plan.py skills/network-security-integrated-scanner/tests/test_ssh_plan.py
 git commit -m "feat: define read-only Linux and forensic checks"
 ```
 
 ### Task 7: Add evidence integrity, redaction, deduplication, and correlation
 
 **Files:**
-- Create: `network-security-integrated-scanner/schemas/findings.schema.json`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/evidence.py`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/correlate.py`
-- Create: `network-security-integrated-scanner/references/report-schema.md`
-- Create: `network-security-integrated-scanner/tests/test_evidence.py`
-- Create: `network-security-integrated-scanner/tests/test_correlate.py`
+- Create: `skills/network-security-integrated-scanner/schemas/findings.schema.json`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/evidence.py`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/correlate.py`
+- Create: `skills/network-security-integrated-scanner/references/report-schema.md`
+- Create: `skills/network-security-integrated-scanner/tests/test_evidence.py`
+- Create: `skills/network-security-integrated-scanner/tests/test_correlate.py`
 
 **Step 1: Write failing security tests**
 
@@ -394,7 +394,7 @@ Test that matching asset/component/CVE findings from Nuclei and Xray merge into 
 
 **Step 2: Verify failure**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_evidence.py network-security-integrated-scanner/tests/test_correlate.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_evidence.py skills/network-security-integrated-scanner/tests/test_correlate.py -v`
 
 Expected: FAIL because integrity/redaction/correlation modules are missing.
 
@@ -406,7 +406,7 @@ Document the four statuses and the rule that `not-assessable` reduces coverage b
 
 **Step 4: Run tests**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_evidence.py network-security-integrated-scanner/tests/test_correlate.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_evidence.py skills/network-security-integrated-scanner/tests/test_correlate.py -v`
 
 Expected: PASS, with no fixture secret visible in output.
 
@@ -420,14 +420,14 @@ git commit -m "feat: preserve and correlate assessment evidence"
 ### Task 8: Render all outputs and complete end-to-end acceptance
 
 **Files:**
-- Create: `network-security-integrated-scanner/assets/executive-report-template.html`
-- Create: `network-security-integrated-scanner/scripts/security_assessor/report.py`
-- Create: `network-security-integrated-scanner/scripts/validate_run.py`
-- Create: `network-security-integrated-scanner/tests/fixtures/complete-run.json`
-- Create: `network-security-integrated-scanner/tests/test_report.py`
-- Create: `network-security-integrated-scanner/tests/test_end_to_end.py`
-- Modify: `network-security-integrated-scanner/SKILL.md`
-- Modify: `network-security-integrated-scanner/pyproject.toml`
+- Create: `skills/network-security-integrated-scanner/assets/executive-report-template.html`
+- Create: `skills/network-security-integrated-scanner/scripts/security_assessor/report.py`
+- Create: `skills/network-security-integrated-scanner/scripts/validate_run.py`
+- Create: `skills/network-security-integrated-scanner/tests/fixtures/complete-run.json`
+- Create: `skills/network-security-integrated-scanner/tests/test_report.py`
+- Create: `skills/network-security-integrated-scanner/tests/test_end_to_end.py`
+- Modify: `skills/network-security-integrated-scanner/SKILL.md`
+- Modify: `skills/network-security-integrated-scanner/pyproject.toml`
 
 **Step 1: Write failing report tests**
 
@@ -444,7 +444,7 @@ Use a deterministic posture score: begin at 100; subtract 25/10/4/1 for unique c
 
 **Step 2: Verify failure**
 
-Run: `.venv/bin/pytest network-security-integrated-scanner/tests/test_report.py network-security-integrated-scanner/tests/test_end_to_end.py -v`
+Run: `.venv/bin/pytest skills/network-security-integrated-scanner/tests/test_report.py skills/network-security-integrated-scanner/tests/test_end_to_end.py -v`
 
 Expected: FAIL because renderer/template are missing.
 
@@ -470,9 +470,9 @@ Finish `SKILL.md` with the complete order:
 Run:
 
 ```bash
-.venv/bin/pytest network-security-integrated-scanner/tests -v
-.venv/bin/python -m compileall -q network-security-integrated-scanner/scripts
-.venv/bin/python network-security-integrated-scanner/scripts/validate_run.py network-security-integrated-scanner/tests/fixtures/expected-run
+.venv/bin/pytest skills/network-security-integrated-scanner/tests -v
+.venv/bin/python -m compileall -q skills/network-security-integrated-scanner/scripts
+.venv/bin/python skills/network-security-integrated-scanner/scripts/validate_run.py skills/network-security-integrated-scanner/tests/fixtures/expected-run
 ```
 
 Expected: all tests PASS, compileall exits 0, and validator prints `VALID` with zero scope, hash, schema, HTML, or redaction errors.
@@ -506,8 +506,8 @@ Run:
 
 ```bash
 git status --short
-.venv/bin/pytest network-security-integrated-scanner/tests -q
-.venv/bin/python -m compileall -q network-security-integrated-scanner/scripts
+.venv/bin/pytest skills/network-security-integrated-scanner/tests -q
+.venv/bin/python -m compileall -q skills/network-security-integrated-scanner/scripts
 ```
 
 Expected: clean worktree, all tests pass, and Python compilation exits 0. Review the generated HTML at desktop and print widths, confirm every report claim has evidence, and confirm no scanner/SSH subprocess is hidden inside Python code.
