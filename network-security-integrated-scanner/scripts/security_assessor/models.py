@@ -55,6 +55,14 @@ class Finding:
     identifiers: tuple[str, ...] = ()
     evidence_refs: tuple[str, ...] = ()
     description: str = ""
+    finding_id: str = ""
+    exposure_conditions: tuple[str, ...] = ()
+    impact: str = ""
+    remediation: str = ""
+    retest_method: str = ""
+    baseline_mappings: tuple[str, ...] = ()
+    related_finding_ids: tuple[str, ...] = ()
+
 
 
 @dataclass(frozen=True)
