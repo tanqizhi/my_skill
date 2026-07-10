@@ -1,0 +1,4 @@
+interface:
+  display_name: "Network Secure"
+  short_description: "对授权服务器执行外部扫描与 Linux SSH 安全检查"
+  default_prompt: "Use $network-secure to assess my authorized server and produce a security report."

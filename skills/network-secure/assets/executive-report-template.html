@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{TITLE}}</title>
+  <style>
+    :root{--ink:#172033;--muted:#687386;--paper:#f4f7fb;--card:#fff;--line:#dfe6ef;--critical:#9f1239;--high:#c2410c;--accent:#0f766e}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1100px;margin:auto;padding:40px 24px}.hero{padding:32px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#10233f,#0f766e)}h1{margin:0 0 8px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}.metric{font-size:28px;font-weight:750}.label,.note{color:var(--muted);font-size:13px}.section{margin-top:20px}table{width:100%;border-collapse:collapse;background:#fff}th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-size:12px}.critical{color:var(--critical)}.high{color:var(--high)}@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}@media print{body{background:#fff}main{max-width:none;padding:10mm}.section{break-inside:avoid}}
+  </style>
+</head>
+<body><main>
+  <section class="hero"><h1>{{TITLE}}</h1><div>范围：{{SCOPE}}　模式：{{MODE}}　日期：{{DATE}}</div></section>
+  <section class="grid">
+    <div class="card"><div class="label">严重风险</div><div class="metric">{{CRITICAL_COUNT}}</div></div>
+    <div class="card"><div class="label">高危风险</div><div class="metric">{{HIGH_COUNT}}</div></div>
+    <div class="card"><div class="label">有效发现</div><div class="metric">{{FINDING_COUNT}}</div></div>
+    <div class="card"><div class="label">检查覆盖率</div><div class="metric">{{COVERAGE}}</div></div>
+  </section>
+  <section class="card section"><h2>管理层摘要</h2>{{EXECUTIVE_SUMMARY}}</section>
+  <section class="section"><h2>优先风险</h2><table><thead><tr><th>资产</th><th>级别</th><th>发现</th><th>影响</th><th>建议</th></tr></thead><tbody>{{FINDING_ROWS}}</tbody></table></section>
+  <section class="card section"><h2>覆盖范围与缺口</h2>{{COVERAGE_GAPS}}</section>
+  <section class="card section"><h2>结论</h2>{{CONCLUSION}}<p class="note">本报告仅代表授权范围和检查时点内获得的证据；未检查或不可评估的项目不能视为安全。</p></section>
+</main></body></html>
