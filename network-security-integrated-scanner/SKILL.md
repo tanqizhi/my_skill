@@ -16,12 +16,14 @@ Assess only targets supplied by the user. Treat supplied targets as authorized, 
 2. Ask for coverage:
    - `全面检查`: use the complete checklist within the supplied target boundary.
    - `定向检查`: collect exact IPs, domains, ports, URLs, services, directories, logs, and time ranges.
-3. Read [scope-policy.md](references/scope-policy.md) and freeze the scope before producing commands.
+3. Read [scope-policy.md](references/scope-policy.md) and freeze the scope before producing commands. Apply the [default baseline](references/baselines/default-baseline.md) and load any user-supplied rules using [custom baseline rules](references/baselines/custom-baseline.md).
 4. If a vulnerability report is supplied, read [report-validation.md](references/report-validation.md). Verify only report findings; do not start broad discovery or crawling.
 5. For modes containing External, read [external-assessment.md](references/external-assessment.md). If a required local tool is missing, read [tool-installation.md](references/tool-installation.md). Ask whether safe PoC verification is allowed. Enable Chaitin Xray only for an identified Web business and within its URL scope.
 6. For modes containing Internal, require Linux and read [linux-internal-assessment.md](references/linux-internal-assessment.md) plus the [Linux check catalog](references/checks/linux-checks.json). Use the supplied account; use confirmed `sudo` only when a normal account cannot perform a required read-only check.
 7. Run forensics only when explicitly selected or after showing suspicious evidence and receiving upgrade confirmation. Read [forensics.md](references/forensics.md) and the [forensic check catalog](references/checks/forensic-checks.json).
-8. Correlate and report results using [report-schema.md](references/report-schema.md).
+8. Normalize scanner and SSH outputs, redact evidence, create hashes, and correlate External/Internal results using [report-schema.md](references/report-schema.md).
+9. Render `report.md`, `executive-report.html`, `findings.json`, and `evidence/manifest.json`, then run `scripts/validate_run.py RUN_DIRECTORY`.
+10. Summarize completed coverage, gaps, stopped checks, and `not-assessable` items. Do not claim the server is safe merely because no finding was confirmed.
 
 ## Non-negotiable gates
 

@@ -34,3 +34,8 @@ def test_agent_metadata_matches_skill_name():
     text = (ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
     assert 'display_name: "Network Security Integrated Scanner"' in text
     assert "$network-security-integrated-scanner" in text
+
+
+def test_skill_scripts_never_hide_scanner_or_ssh_subprocesses():
+    scripts = (ROOT / "scripts").rglob("*.py")
+    assert all("import subprocess" not in path.read_text(encoding="utf-8") for path in scripts)
