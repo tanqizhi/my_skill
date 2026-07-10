@@ -1,9 +1,9 @@
 ---
-name: server-security-assessor
+name: network-security-integrated-scanner
 description: Assess authorized Linux servers, Windows server exposure, and Web services using External, Internal SSH, or Both modes. Use when Codex needs to scan a server, validate an existing vulnerability report, check Linux security through SSH, investigate compromise indicators, run bounded safe PoCs, or produce evidence-backed security reports. Supports Nmap, Nuclei, optional Chaitin Xray for Web targets, custom baselines, and Markdown, HTML, JSON, and evidence outputs.
 ---
 
-# Server Security Assessor
+# Network Security Integrated Scanner
 
 Assess only targets supplied by the user. Treat supplied targets as authorized, but never infer or expand to sibling domains, resolved addresses, redirects, CIDRs, or related assets.
 

@@ -7,7 +7,7 @@ ROOT = Path(__file__).parents[1]
 
 def test_skill_contract_mentions_required_workflow():
     text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
-    assert text.startswith("---\nname: server-security-assessor\n")
+    assert text.startswith("---\nname: network-security-integrated-scanner\n")
     assert "TODO" not in text
     for phrase in [
         "External",
@@ -32,5 +32,5 @@ def test_skill_references_only_existing_local_resources():
 
 def test_agent_metadata_matches_skill_name():
     text = (ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
-    assert 'display_name: "Server Security Assessor"' in text
-    assert "$server-security-assessor" in text
+    assert 'display_name: "Network Security Integrated Scanner"' in text
+    assert "$network-security-integrated-scanner" in text

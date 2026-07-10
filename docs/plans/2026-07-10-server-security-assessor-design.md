@@ -1,4 +1,4 @@
-# Server Security Assessor Skill 设计
+# Network Security Integrated Scanner Skill 设计
 
 日期：2026-07-10
 
@@ -25,7 +25,7 @@ Windows 目标只支持外部检查。Linux 目标支持全部三种模式。第
 
 ## 3. 架构
 
-采用一个 `server-security-assessor` skill，由 `SKILL.md` 统一负责输入、预检、模式路由、风险门禁、停止条件和结果交付。具体知识与确定性处理按模块拆分：
+采用一个 `network-security-integrated-scanner` skill，由 `SKILL.md` 统一负责输入、预检、模式路由、风险门禁、停止条件和结果交付。具体知识与确定性处理按模块拆分：
 
 - `references/external-assessment.md`：主动扫描、安全 PoC 和 Web 检查规则。
 - `references/report-validation.md`：已有报告的定向解析与验证。
