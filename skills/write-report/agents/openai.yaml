@@ -1,0 +1,4 @@
+interface:
+  display_name: "写报告"
+  short_description: "为非技术领导生成图表优先、结论先行的可编辑技术报告"
+  default_prompt: "使用 $write-report 将技术数据整理成领导可直接汇报和修改的 Word 报告。"
