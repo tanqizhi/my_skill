@@ -1,0 +1,46 @@
+api_version: bundle.codex/v1alpha1
+
+bundle:
+  name: replace-me
+  version: 0.1.0
+  content_scope: full
+  package_mode: installable
+  deploy_targets:
+    - docker
+  dependency_policy: layered
+  offline: true
+
+platforms:
+  - os: linux
+    architecture: amd64
+
+runtime:
+  docker:
+    enabled: true
+    version: ""
+    compose_version: ""
+  k3s:
+    enabled: false
+    version: ""
+
+packages:
+  requires: []
+
+services: []
+
+external_dependencies: []
+
+security:
+  vulnerability_policy:
+    block_severities:
+      - critical
+      - high
+    allow_documented_exceptions: true
+  require_digest: true
+  generate_source_record: true
+
+testing:
+  levels:
+    - static
+    - package
+  remote_execution_authorized: false

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docker/K3s Bundle Builder"
+  short_description: "Build validated Docker and K3s installation bundles"
+  default_prompt: "Create or modify a Docker/K3s installation bundle. Confirm the package scope, package mode, deployment target, dependency policy, platforms, image sources, and test environment before performing risky or externally mutating actions."
