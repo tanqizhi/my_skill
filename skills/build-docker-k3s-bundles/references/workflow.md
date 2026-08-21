@@ -72,7 +72,8 @@ flowchart TB
     ARTIFACTS -->|是| VALIDATE
     ARTIFACTS -->|否| RUNTIME[准备Docker、Compose或K3s运行时文件]
     RUNTIME --> MODULES[生成安装、导入、管理、升级和回滚模块]
-    MODULES --> VALIDATE[执行静态检查和自动化测试]
+    MODULES --> REPORTER[生成安装后部署与运维报告模块]
+    REPORTER --> VALIDATE[执行静态检查和自动化测试]
 
     VALIDATE --> VALID_RESULT{检查是否通过}
     VALID_RESULT -->|否| FIX[修复问题并记录变化]

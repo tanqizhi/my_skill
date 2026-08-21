@@ -18,7 +18,8 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 4. For SaaS-only or custom bundles, resolve dependencies using `include`, `external`, or `layered` policy. Prefer `layered` when a reusable PaaS base package is appropriate.
 5. Build or update the bundle manifest according to `references/bundle-manifest.md`.
 6. Follow the applicable path in `references/workflow.md` and the engineering rules in `references/implementation-guidance.md`.
-7. Validate generated configuration, checksums, image metadata, scripts, upgrade behavior, rollback behavior, and package contents before reporting completion.
+7. For every installable bundle, make the installation entrypoint generate a concise post-install deployment and operations report according to `references/implementation-guidance.md`.
+8. Validate generated configuration, checksums, image metadata, scripts, report generation, upgrade behavior, rollback behavior, and package contents before reporting completion.
 
 ## Interaction Rules
 
@@ -40,6 +41,8 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Back up affected configuration and retain rollback metadata before upgrades.
 - Treat Docker and K3s differences as deployment adapters; share image, service, dependency, and security metadata.
 - Generate a validation report even when no Linux test host is available, clearly distinguishing static validation from installation testing.
+- Every installable bundle must generate `reports/deployment-and-operations.md` when its installation entrypoint finishes. Generate the report for successful, partially successful, and failed runs when the filesystem remains writable; never let report-generation failure hide the installation result.
+- Base the post-install report on observed execution results rather than planned state. Redact secrets, state which checks were not executed, and print the report path in the final console summary.
 
 ## References
 

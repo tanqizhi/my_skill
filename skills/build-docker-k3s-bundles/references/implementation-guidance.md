@@ -34,11 +34,13 @@ bundle-name/
 |   `-- images.yaml
 `-- reports/
     |-- validation.md
+    |-- deployment-and-operations.md
     |-- image-sources.yaml
     `-- security-exceptions.yaml
 ```
 
 Omit directories that are irrelevant to the selected package mode. An `images-only` package does not need runtime installation or service deployment modules.
+For an installable bundle, `deployment-and-operations.md` is created or refreshed by the installation entrypoint from the actual execution result; it is not a prefilled claim that deployment succeeded.
 
 ## Module Boundaries
 
@@ -86,6 +88,24 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 - Check prerequisites before making changes.
 - Back up files before replacement and record how to restore them.
 - Separate generated defaults from user-managed overrides.
+- On every terminal installation outcome, attempt to write `reports/deployment-and-operations.md`, then print its path in the console summary. Preserve the installation exit code if report generation fails.
+
+## Post-Install Deployment and Operations Report
+
+Every installable bundle must generate a concise Markdown report at `reports/deployment-and-operations.md` after the installation entrypoint finishes. An upgrade bundle that also deploys or changes running services must refresh the same report. An `images-only` bundle is exempt.
+
+Build the report from observed results and include:
+
+- execution time, installation result (`success`, `partial`, or `failed`), target host or nodes, operating system, architecture, and Docker or K3s runtime version;
+- deployed services, image tags and digests, service or workload state, health-check result, and exposed addresses or ports;
+- important configuration, data, log, backup, and manifest paths;
+- copy-ready commands for status, start, stop, restart, health checks, and log viewing, using the bundle's generated management interface;
+- the applicable backup, upgrade, rollback, and recovery entrypoints;
+- failed or skipped checks, remaining manual steps, and the location of detailed installation logs.
+
+Keep the report short and operational. For multi-node K3s, add a compact per-node result table. Mark unavailable facts as `not checked` instead of guessing. Never include passwords, tokens, private keys, registry credentials, secret environment values, or unredacted credential-bearing command lines.
+
+Generate the report on successful, partially successful, and failed runs whenever the bundle directory is writable. Report generation is best-effort during failure handling: failure to write the report must be visible, but it must not replace or mask the original installation result and exit code.
 
 ## Validation Levels
 
@@ -95,6 +115,8 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 4. Local installation: clean-host install, repeated install, start, stop, restart, status, and uninstall behavior where supported.
 5. Upgrade validation: supported old version to target version, configuration migration, data preservation, and rollback.
 6. K3s validation: server bootstrap, agent join, image availability on required nodes, workload scheduling, persistence, and node-specific failure reporting.
+
+For installable bundles, also test report generation for a successful run and at least one controlled failure path. Verify that the report reflects observed state, contains the required operations commands, redacts secrets, and preserves the installation exit code.
 
 When no Linux host is available, report only levels actually executed. Never label static checks as a successful installation test.
 
@@ -111,3 +133,4 @@ Report:
 - tests executed and tests omitted;
 - remaining manual steps;
 - rollback and recovery instructions.
+- the post-install report path and whether successful and failure-path report generation were validated.
