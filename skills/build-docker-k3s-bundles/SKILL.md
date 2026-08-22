@@ -49,6 +49,7 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Treat `nat` as the iptables table, `PREROUTING` as its built-in chain, and the bundle-specific object as a user-defined chain. Manage only a verified bundle-owned chain and its jump; do not alter Docker, K3s, CNI, or unrelated user rules.
 - At build-modification time and again at installation time, detect existing NAT chains and jumps. Reuse a compatible same-name chain idempotently, repair only missing owned entries, and stop for ambiguous ownership or incompatible contents.
 - For a cluster, synchronize the desired bundle-owned NAT rules to every declared server and agent node, detect per-node drift, and record per-node results.
+- The exposure and firewall pseudocode examples are design references only. Never execute, package, or copy them verbatim; replace every adapter stub with an implementation derived from the actual bundle, runtime, firewall backend, ownership rules, and authorization boundaries.
 - Generate a validation report even when no Linux test host is available, clearly distinguishing static validation from installation testing.
 - Every installable bundle must generate `reports/deployment-and-operations.md` when its installation entrypoint finishes. Generate the report for successful, partially successful, and failed runs when the filesystem remains writable; never let report-generation failure hide the installation result.
 - Base the post-install report on observed execution results rather than planned state. Redact secrets, state which checks were not executed, and print the report path in the final console summary.
@@ -60,4 +61,6 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Bundle manifest fields and example: `references/bundle-manifest.md`
 - Package layout, module boundaries, security, and tests: `references/implementation-guidance.md`
 - SaaS bootstrap, resumable installation, external exposure, and bundle-owned NAT management: `references/saas-bootstrap-and-network-management.md`
+- Reference-only external exposure pseudocode: `references/examples/manage-exposure.pseudocode.sh`
+- Reference-only bundle-owned NAT pseudocode: `references/examples/manage-firewall.pseudocode.sh`
 - Starter manifest: `assets/templates/bundle.yaml`

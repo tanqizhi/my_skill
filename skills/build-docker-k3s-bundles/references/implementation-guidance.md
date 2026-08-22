@@ -104,6 +104,15 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 
 Read `saas-bootstrap-and-network-management.md` when the bundle includes SaaS, resumable installation, Docker or K3s external exposure, or bundle-owned NAT management.
 
+## Reference Pseudocode
+
+The files under `references/examples/` are intentionally non-executable design sketches:
+
+- `manage-exposure.pseudocode.sh` demonstrates the discover, plan, preview, confirm, backup, apply, verify, and rollback shape for Docker publishing and K3s NodePort management.
+- `manage-firewall.pseudocode.sh` demonstrates owned-chain discovery and reuse, ordered CRUD, all-node synchronization, and the continue-or-rollback decision after a node failure.
+
+Each example exits immediately and contains adapter stubs. Do not ship it in a generated bundle, remove its guard, or treat its placeholder calls as implementation. Generate a new module from the bundle manifest and verified target environment, then validate that module independently.
+
 ## Post-Install Deployment and Operations Report
 
 Every installable bundle must generate a concise Markdown report at `reports/deployment-and-operations.md` after the installation entrypoint finishes. An upgrade bundle that also deploys or changes running services must refresh the same report. An `images-only` bundle is exempt.

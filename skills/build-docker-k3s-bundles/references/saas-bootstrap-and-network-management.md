@@ -64,6 +64,8 @@ A changed input invalidates the stage that consumes it and downstream dependents
 
 The management entrypoint must offer interactive list, add, update, delete, and verification operations.
 
+Use `examples/manage-exposure.pseudocode.sh` only as a control-flow reference. It is deliberately guarded and incomplete; generate the real adapter from the selected runtime and observed configuration.
+
 For Docker:
 
 - manage explicit host address, published port, container port, and protocol mappings;
@@ -120,6 +122,8 @@ The installer must repeat discovery on every target node before applying. Handle
 Never blindly run a create-chain command or append a PREROUTING jump.
 
 ## Interactive NAT CRUD
+
+Use `examples/manage-firewall.pseudocode.sh` only as a control-flow reference. It is deliberately guarded and incomplete; never run or package it.
 
 The management entrypoint must support:
 
