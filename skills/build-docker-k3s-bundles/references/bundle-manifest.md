@@ -46,6 +46,31 @@ runtime:
     enabled: true
     version: ""
 
+cluster:
+  nodes:
+    - name: server-1
+      address: 192.0.2.10
+      roles: [server]
+    - name: agent-1
+      address: 192.0.2.11
+      roles: [agent]
+
+installation:
+  state_directory: state
+  resume_enabled: true
+  preserve_data_on_reinstall: true
+  stages:
+    - preflight
+    - runtime
+    - images
+    - paas
+    - dependency-init
+    - saas-config
+    - saas
+    - exposure
+    - health
+    - report
+
 packages:
   requires:
     - name: example-product-paas
@@ -70,6 +95,23 @@ services:
       compose_file: deploy/docker/application-api.yaml
       k3s_manifest: deploy/k3s/application-api.yaml
       env_template: config/application-api.env.example
+      dependency_targets:
+        - id: primary-data-store
+          kind: data-store
+          provider: postgresql
+          service: postgres
+          endpoint_ref: config/postgres-endpoint
+          selectors:
+            database: application
+          credential_ref: secrets/application-db
+        - id: configuration-center
+          kind: configuration-provider
+          provider: nacos
+          endpoint_ref: config/nacos-endpoint
+          selectors:
+            namespace: application
+            group: DEFAULT_GROUP
+          credential_ref: secrets/nacos
     healthcheck:
       type: http
       endpoint: /health
@@ -84,6 +126,53 @@ services:
       version: ">=1.5.0,<2.0.0"
 
 external_dependencies: []
+
+saas_bootstrap:
+  confirmation_required: true
+  initialization_tasks:
+    - id: application-schema
+      owner_service: application-api
+      kind: schema-migration
+      provider: postgresql
+      operation: apply-sql
+      target_dependency: primary-data-store
+      source: bootstrap/dependency-data/application.sql
+      checksum: sha256:replace-with-file-digest
+      run_before: application-api
+      idempotency: migration-history
+      backup_before_apply: true
+      verify: schema-version
+  configuration_checks:
+    - service: application-api
+      targets:
+        - primary-data-store
+        - configuration-center
+
+exposure:
+  docker:
+    - service: application-api
+      host_address: 0.0.0.0
+      published_port: 8080
+      container_port: 8080
+      protocol: tcp
+  k3s_node_ports:
+    - service: application-api
+      service_port: 8080
+      node_port: 30080
+      protocol: TCP
+
+firewall:
+  enabled: false
+  backend: auto
+  table: nat
+  parent_chain: PREROUTING
+  managed_chain: ""
+  reuse_existing_chain: true
+  sync_all_cluster_nodes: true
+  jump_position: append
+  persistence: prompt
+  on_node_failure: prompt
+  rules: []
 
 security:
   vulnerability_policy:
@@ -108,6 +197,23 @@ testing:
 - `source_type` identifies acquisition: public registry, private registry, supplied archive, or locally built image.
 - `provided_by` describes a service supplied by another bundle.
 - `dependencies` expresses service relationships and must not be inferred only from image names.
+
+## SaaS Bootstrap
+
+- `saas_bootstrap.initialization_tasks` is an open list of dependency state required before a dependent SaaS service starts.
+- An initialization task records kind, provider operation, source identity, target, order, idempotency, backup, verification, and blocked SaaS services; it never embeds credentials.
+- `configuration.dependency_targets` is an open list. `kind` expresses a provider-neutral capability, `provider` selects provider-specific handling, and `selectors` carries provider-specific non-secret coordinates.
+- The PostgreSQL and Nacos entries above are examples only. The same structure must support other data stores, configuration systems, caches, message brokers, storage, search, identity, policy, certificate, license, or future dependency types without changing the core schema.
+- `saas_bootstrap.configuration_checks` makes all intended runtime targets auditable before SaaS starts.
+- If SaaS is present and no dependency initialization is needed, record an explicit skipped decision and reason rather than leaving the question unresolved.
+
+## Installation State and Network Management
+
+- `installation.stages` defines checkpoint identities and dependency order. Runtime state records input fingerprints and observed results outside the declarative desired-state fields.
+- `exposure.docker` and `exposure.k3s_node_ports` drive management menus and deployment adapters.
+- `firewall.table` is normally `nat`; `parent_chain` is normally `PREROUTING`; `managed_chain` is the bundle-owned user-defined chain.
+- During modification, populate `managed_chain` with a verified existing chain name when compatible. At installation, recheck every target node before creating or reusing it.
+- `sync_all_cluster_nodes` applies the desired owned NAT rules to every declared server and agent. `on_node_failure: prompt` requires an interactive continue-or-rollback decision and an exact failed-node recovery command.
 
 ## Image Identity
 

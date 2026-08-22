@@ -19,16 +19,22 @@ bundle-name/
 |-- deploy/
 |   |-- docker/
 |   `-- k3s/
+|-- bootstrap/
+|   `-- dependency-data/
 |-- config/
 |   `-- *.env.example
 |-- scripts/
 |   |-- lib/
 |   |-- install-runtime.sh
 |   |-- import-images.sh
+|   |-- initialize-dependencies.sh
 |   |-- deploy-services.sh
 |   |-- manage-services.sh
+|   |-- manage-exposure.sh
+|   |-- manage-firewall.sh
 |   |-- upgrade.sh
 |   `-- rollback.sh
+|-- state/                       Generated at runtime
 |-- inventory/
 |   |-- nodes.example.yaml
 |   `-- images.yaml
@@ -48,7 +54,9 @@ For an installable bundle, `deployment-and-operations.md` is created or refreshe
 - Runtime adapter: install or validate Docker, Compose, or K3s without mixing service-specific logic into runtime setup.
 - Image acquisition: pull, copy, load, verify, inventory, and classify images.
 - Deployment adapter: translate common service metadata into Docker or K3s deployment artifacts.
-- Management: start, stop, restart, status, version, import, switch, and health operations based on the bundle manifest.
+- SaaS bootstrap: apply declared data or configuration initialization for any dependency type only after its target is ready and before dependent SaaS starts.
+- Installation state: persist atomic stage checkpoints, input fingerprints, observed results, failure details, and recovery commands.
+- Management: start, stop, restart, status, version, import, switch, health, external exposure, and bundle-owned NAT operations based on the bundle manifest.
 - Upgrade: calculate current-to-target differences, validate compatibility, back up configuration, apply changes, and retain rollback data.
 - Remote K3s: distribute only approved artifacts, verify node identity and architecture, execute bounded operations, and report per-node results.
 
@@ -61,9 +69,11 @@ Before generating remote installation behavior, confirm:
 - SSH key or password mechanism;
 - K3s token injection method;
 - image distribution strategy for every required node;
+- the exact node name and IP address for every server and agent so failed NAT work can be identified and recovered;
 - private registry and certificate strategy;
 - storage class, persistent paths, ingress, load balancing, DNS, and required ports;
 - upgrade ordering and rollback limitations.
+- whether bundle-owned NAT rules must be synchronized to every server and agent node and how rule persistence is managed.
 
 Do not bundle `sshpass` by default. Use it only when password automation is explicitly required and approved. Prefer SSH keys and avoid recording credentials in command lines or logs.
 
@@ -81,6 +91,8 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 
 - Use strict error handling appropriate to the implementation language.
 - Support repeated execution without duplicating resources or corrupting state.
+- Provide `--status`, `--resume`, `--restart-from <stage>`, and `--reinstall <service-or-stage>`. Preserve persistent data and user configuration during reinstall unless a separately confirmed clean mode is requested.
+- Store each completed stage with an input fingerprint and observed output using an atomic replace. When inputs change, invalidate only the affected stage and its downstream dependents.
 - Offer `--dry-run` for impactful operations where practical.
 - Offer non-interactive execution with explicit configuration inputs.
 - Produce useful exit codes and stage-aware logs.
@@ -90,6 +102,8 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 - Separate generated defaults from user-managed overrides.
 - On every terminal installation outcome, attempt to write `reports/deployment-and-operations.md`, then print its path in the console summary. Preserve the installation exit code if report generation fails.
 
+Read `saas-bootstrap-and-network-management.md` when the bundle includes SaaS, resumable installation, Docker or K3s external exposure, or bundle-owned NAT management.
+
 ## Post-Install Deployment and Operations Report
 
 Every installable bundle must generate a concise Markdown report at `reports/deployment-and-operations.md` after the installation entrypoint finishes. An upgrade bundle that also deploys or changes running services must refresh the same report. An `images-only` bundle is exempt.
@@ -98,6 +112,9 @@ Build the report from observed results and include:
 
 - execution time, installation result (`success`, `partial`, or `failed`), target host or nodes, operating system, architecture, and Docker or K3s runtime version;
 - deployed services, image tags and digests, service or workload state, health-check result, and exposed addresses or ports;
+- dependency-initialization tasks attempted, skipped, completed, or rolled back, plus SaaS dependency-configuration validation results;
+- the latest installation checkpoint, resume or reinstall activity, and any invalidated or incomplete stage;
+- the bundle-owned NAT table, parent chain, user-defined chain, jump placement, rule summary, and per-node synchronization result;
 - important configuration, data, log, backup, and manifest paths;
 - copy-ready commands for status, start, stop, restart, health checks, and log viewing, using the bundle's generated management interface;
 - the applicable backup, upgrade, rollback, and recovery entrypoints;
@@ -115,6 +132,9 @@ Generate the report on successful, partially successful, and failed runs wheneve
 4. Local installation: clean-host install, repeated install, start, stop, restart, status, and uninstall behavior where supported.
 5. Upgrade validation: supported old version to target version, configuration migration, data preservation, and rollback.
 6. K3s validation: server bootstrap, agent join, image availability on required nodes, workload scheduling, persistence, and node-specific failure reporting.
+7. Resume and reinstall validation: controlled failures at representative stages, correct checkpoint reuse and invalidation, data-preserving reinstall, explicitly confirmed clean reinstall, and preservation of the original failure exit code.
+8. SaaS bootstrap validation: provider-neutral task modeling, initialization ordering, idempotency, target-specific selectors, backup and rollback, provider-specific verification, and prevention of SaaS startup on failed prerequisites.
+9. Exposure and NAT validation: Docker publishing, K3s NodePort range and collision checks, existing-chain reuse, repeated execution without duplicate chains or jumps, rule ordering, persistence, per-node drift, continue-or-rollback prompts, and exact failed-node recovery commands.
 
 For installable bundles, also test report generation for a successful run and at least one controlled failure path. Verify that the report reflects observed state, contains the required operations commands, redacts secrets, and preserves the installation exit code.
 
@@ -134,3 +154,4 @@ Report:
 - remaining manual steps;
 - rollback and recovery instructions.
 - the post-install report path and whether successful and failure-path report generation were validated.
+- the installation resume state, SaaS bootstrap result, exposed ports, NAT chain reuse or creation decision, and per-node firewall synchronization status.

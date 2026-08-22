@@ -23,12 +23,53 @@ runtime:
     enabled: false
     version: ""
 
+cluster:
+  nodes: []
+
+installation:
+  state_directory: state
+  resume_enabled: true
+  preserve_data_on_reinstall: true
+  stages:
+    - preflight
+    - runtime
+    - images
+    - paas
+    - dependency-init
+    - saas-config
+    - saas
+    - exposure
+    - health
+    - report
+
 packages:
   requires: []
 
 services: []
 
 external_dependencies: []
+
+saas_bootstrap:
+  confirmation_required: true
+  initialization_tasks: []
+  configuration_checks: []
+
+exposure:
+  docker: []
+  k3s_node_ports: []
+
+firewall:
+  enabled: false
+  backend: auto
+  table: nat
+  parent_chain: PREROUTING
+  managed_chain: ""
+  reuse_existing_chain: true
+  sync_all_cluster_nodes: true
+  jump_position: append
+  persistence: prompt
+  on_node_failure: prompt
+  rules: []
 
 security:
   vulnerability_policy:
