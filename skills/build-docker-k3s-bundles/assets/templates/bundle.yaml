@@ -10,6 +10,15 @@ bundle:
   dependency_policy: layered
   offline: true
 
+localization:
+  report_language: zh-CN
+  manual_language: zh-CN
+
+documentation:
+  deployment_report: reports/deployment-and-operations.md
+  installation_guide: docs/installation-guide.zh-CN.md
+  operations_guide: docs/operations-guide.zh-CN.md
+
 platforms:
   - os: linux
     architecture: amd64
@@ -40,6 +49,27 @@ installation:
     - saas
     - exposure
     - health
+    - report
+
+uninstall:
+  enabled: true
+  entrypoint: install.sh
+  resume_enabled: true
+  preserve_data_by_default: true
+  remove_images_by_default: false
+  remove_runtime_by_default: false
+  stages:
+    - preflight
+    - stop-saas
+    - remove-saas
+    - stop-paas
+    - remove-paas
+    - remove-exposure
+    - remove-owned-nat
+    - remove-generated-config
+    - optional-images
+    - optional-runtime
+    - verify-retained-state
     - report
 
 packages:

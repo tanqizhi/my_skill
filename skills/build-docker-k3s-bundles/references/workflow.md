@@ -83,10 +83,11 @@ flowchart TB
     MANIFEST --> ARTIFACTS{是否仅镜像包}
     ARTIFACTS -->|是| VALIDATE
     ARTIFACTS -->|否| RUNTIME[准备Docker、Compose或K3s运行时文件]
-    RUNTIME --> MODULES[生成可续装安装、重装、管理、升级和回滚模块]
+    RUNTIME --> MODULES[生成可续装安装、重装、卸载、管理、升级和回滚模块]
     MODULES --> NETWORK[生成Docker端口、NodePort和bundle专属NAT管理模块]
-    NETWORK --> REPORTER[生成安装后部署与运维报告模块]
-    REPORTER --> VALIDATE[执行静态检查和自动化测试]
+    NETWORK --> REPORTER[生成中文部署报告模块]
+    REPORTER --> MANUALS[生成中文安装手册和运维管理手册]
+    MANUALS --> VALIDATE[执行静态检查和自动化测试]
 
     VALIDATE --> VALID_RESULT{检查是否通过}
     VALID_RESULT -->|否| FIX[修复问题并记录变化]
@@ -96,14 +97,14 @@ flowchart TB
     PACKAGE --> TEST_HOST{是否提供Linux测试环境}
     TEST_HOST -->|否| STATIC_ONLY[标记仅完成静态验证]
     TEST_HOST -->|是| CONFIRM_REMOTE[确认上传和执行测试]
-    CONFIRM_REMOTE --> INSTALL_TEST[执行安装、失败续装、重装、升级、端口、NAT和回滚测试]
+    CONFIRM_REMOTE --> INSTALL_TEST[执行安装、失败续装、重装、卸载、升级、端口、NAT和回滚测试]
     INSTALL_TEST --> TEST_RESULT{测试是否通过}
     TEST_RESULT -->|否| FIX
     TEST_RESULT -->|是| SUCCESS([交付完成])
     STATIC_ONLY --> SUCCESS
 ```
 
-## Installation, Resume, and Reinstall Flow
+## Installation, Resume, Reinstall, and Uninstall Flow
 
 ```mermaid
 flowchart TB
@@ -112,6 +113,27 @@ flowchart TB
     MODE -->|resume| LOAD_STATE[读取阶段状态、输入指纹和失败原因]
     MODE -->|restart-from| RESET_FROM[确认起始阶段并使下游检查点失效]
     MODE -->|reinstall| REINSTALL_TARGET[选择服务或阶段]
+    MODE -->|uninstall| UNINSTALL_DISCOVER[读取清单和状态并发现实际bundle归属资源]
+
+    UNINSTALL_DISCOVER --> UNINSTALL_PREVIEW[显示将删除、保留、跳过和归属不明的资源]
+    UNINSTALL_PREVIEW --> UNINSTALL_SCOPE{是否请求额外清理}
+    UNINSTALL_SCOPE -->|默认卸载| UNINSTALL_PRESERVE[保留数据、用户配置、镜像、共享运行时、备份和文档]
+    UNINSTALL_SCOPE -->|清理数据、镜像或运行时| UNINSTALL_BACKUP[备份适用内容并请求破坏性操作确认]
+    UNINSTALL_PRESERVE --> UNINSTALL_NEXT
+    UNINSTALL_BACKUP --> UNINSTALL_NEXT
+
+    UNINSTALL_NEXT[执行下一个卸载阶段] --> UNINSTALL_CHECK[再次验证归属和前置条件]
+    UNINSTALL_CHECK --> UNINSTALL_APPLY[按逆依赖顺序删除bundle归属资源]
+    UNINSTALL_APPLY --> UNINSTALL_VERIFY[验证实际结果并记录保留项]
+    UNINSTALL_VERIFY --> UNINSTALL_RESULT{阶段是否成功}
+    UNINSTALL_RESULT -->|成功| UNINSTALL_CHECKPOINT[原子记录卸载检查点]
+    UNINSTALL_CHECKPOINT --> UNINSTALL_MORE{还有卸载阶段吗}
+    UNINSTALL_MORE -->|有| UNINSTALL_NEXT
+    UNINSTALL_MORE -->|没有| UNINSTALL_REPORT[生成中文卸载结果和部署状态报告]
+    UNINSTALL_RESULT -->|失败| UNINSTALL_FAILURE[记录失败资源、节点、原因和续执行命令]
+    UNINSTALL_FAILURE --> UNINSTALL_PARTIAL_REPORT[生成中文部分卸载报告]
+    UNINSTALL_PARTIAL_REPORT --> UNINSTALL_EXIT_FAIL([保留原始退出码])
+    UNINSTALL_REPORT --> UNINSTALL_EXIT_OK([卸载完成])
 
     LOAD_STATE --> INPUT_CHANGED{清单或配置输入是否变化}
     INPUT_CHANGED -->|否| FIND_STAGE[定位首个失败或未完成阶段]
@@ -137,15 +159,17 @@ flowchart TB
     STAGE_RESULT -->|成功| CHECKPOINT[原子记录输入摘要、输出和验证结果]
     CHECKPOINT --> MORE{还有阶段吗}
     MORE -->|有| NEXT
-    MORE -->|没有| SUCCESS_REPORT[生成成功部署与运维报告]
+    MORE -->|没有| SUCCESS_REPORT[生成中文部署与运维报告]
 
     STAGE_RESULT -->|失败| FAILURE_STATE[记录失败阶段、节点、原因和续装命令]
-    FAILURE_STATE --> FAILURE_REPORT[生成失败或部分成功报告]
+    FAILURE_STATE --> FAILURE_REPORT[生成中文失败或部分成功报告]
     FAILURE_REPORT --> EXIT_FAIL([保留原始退出码])
     SUCCESS_REPORT --> EXIT_OK([安装完成])
 ```
 
 Stage order for a bundle that contains SaaS is: preflight, runtime, image import, PaaS deployment or dependency validation, declared dependency initialization, SaaS configuration validation, SaaS deployment, approved exposure and NAT changes, health validation, and reporting. Skip only stages that are not applicable and record the reason.
+
+Default uninstall order is: preflight and ownership discovery, stop SaaS, remove SaaS workloads, stop and remove bundle-owned PaaS in reverse dependency order, remove bundle-owned exposure and NAT entries, remove generated runtime configuration, optionally remove bundle-owned images or exclusively owned runtime components, verify retained data and configuration, and generate the Chinese terminal report. Keep checkpoints so interrupted uninstall can resume.
 
 ## Management Flow
 

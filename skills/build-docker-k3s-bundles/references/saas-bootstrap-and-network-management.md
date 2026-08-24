@@ -176,4 +176,4 @@ Validate at least:
 - interactive continue and rollback choices after a node failure;
 - exact node name, IP address, and local recovery command in the prompt and report.
 
-The deployment and operations report must record bootstrap decisions and results, SaaS dependency checks, latest checkpoint, resume or reinstall activity, external ports, NAT backend and chain ownership, reused or created state, PREROUTING jump position, per-node fingerprints and results, user continue-or-rollback decisions, manual recovery commands, persistence status, and remaining drift. Redact secrets.
+The Simplified Chinese deployment and operations report must record bootstrap decisions and results, SaaS dependency checks, latest checkpoint, resume, reinstall, or uninstall activity, external ports, NAT backend and chain ownership, reused or created state, PREROUTING jump position, per-node fingerprints and results, user continue-or-rollback decisions, manual recovery commands, persistence status, and remaining drift. Redact secrets.

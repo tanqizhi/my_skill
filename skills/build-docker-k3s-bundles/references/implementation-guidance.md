@@ -9,6 +9,9 @@ bundle-name/
 |-- install.sh
 |-- manage.sh
 |-- checksums.txt
+|-- docs/
+|   |-- installation-guide.zh-CN.md
+|   `-- operations-guide.zh-CN.md
 |-- images/
 |   |-- paas/
 |   `-- saas/
@@ -32,6 +35,7 @@ bundle-name/
 |   |-- manage-services.sh
 |   |-- manage-exposure.sh
 |   |-- manage-firewall.sh
+|   |-- uninstall.sh
 |   |-- upgrade.sh
 |   `-- rollback.sh
 |-- state/                       Generated at runtime
@@ -46,7 +50,7 @@ bundle-name/
 ```
 
 Omit directories that are irrelevant to the selected package mode. An `images-only` package does not need runtime installation or service deployment modules.
-For an installable bundle, `deployment-and-operations.md` is created or refreshed by the installation entrypoint from the actual execution result; it is not a prefilled claim that deployment succeeded.
+For an installable bundle, `deployment-and-operations.md` is created or refreshed by the installation entrypoint from the actual installation, reinstall, upgrade, or uninstall result; it is not a prefilled claim that deployment succeeded.
 
 ## Module Boundaries
 
@@ -56,6 +60,7 @@ For an installable bundle, `deployment-and-operations.md` is created or refreshe
 - Deployment adapter: translate common service metadata into Docker or K3s deployment artifacts.
 - SaaS bootstrap: apply declared data or configuration initialization for any dependency type only after its target is ready and before dependent SaaS starts.
 - Installation state: persist atomic stage checkpoints, input fingerprints, observed results, failure details, and recovery commands.
+- Uninstall: discover and remove only verified bundle-owned resources in reverse dependency order, preserve data by default, and retain resumable checkpoints and recovery information.
 - Management: start, stop, restart, status, version, import, switch, health, external exposure, and bundle-owned NAT operations based on the bundle manifest.
 - Upgrade: calculate current-to-target differences, validate compatibility, back up configuration, apply changes, and retain rollback data.
 - Remote K3s: distribute only approved artifacts, verify node identity and architecture, execute bounded operations, and report per-node results.
@@ -91,7 +96,8 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 
 - Use strict error handling appropriate to the implementation language.
 - Support repeated execution without duplicating resources or corrupting state.
-- Provide `--status`, `--resume`, `--restart-from <stage>`, and `--reinstall <service-or-stage>`. Preserve persistent data and user configuration during reinstall unless a separately confirmed clean mode is requested.
+- Provide `--status`, `--resume`, `--restart-from <stage>`, `--reinstall <service-or-stage>`, and `--uninstall`. Preserve persistent data and user configuration during reinstall and uninstall unless a separately confirmed clean mode is requested.
+- Support resumable uninstall, for example `install.sh --uninstall --resume`. Use separate explicit options for purging data, deleting images, or removing an exclusively bundle-owned runtime; never bundle those effects into the default uninstall.
 - Store each completed stage with an input fingerprint and observed output using an atomic replace. When inputs change, invalidate only the affected stage and its downstream dependents.
 - Offer `--dry-run` for impactful operations where practical.
 - Offer non-interactive execution with explicit configuration inputs.
@@ -100,9 +106,10 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 - Check prerequisites before making changes.
 - Back up files before replacement and record how to restore them.
 - Separate generated defaults from user-managed overrides.
-- On every terminal installation outcome, attempt to write `reports/deployment-and-operations.md`, then print its path in the console summary. Preserve the installation exit code if report generation fails.
+- On every terminal operation outcome, attempt to write the Simplified Chinese `reports/deployment-and-operations.md`, then print its path in the console summary. Preserve the operation exit code if report generation fails.
 
 Read `saas-bootstrap-and-network-management.md` when the bundle includes SaaS, resumable installation, Docker or K3s external exposure, or bundle-owned NAT management.
+Read `chinese-deliverables.md` when generating the report, manuals, or uninstall behavior.
 
 ## Reference Pseudocode
 
@@ -113,9 +120,9 @@ The files under `references/examples/` are intentionally non-executable design s
 
 Each example exits immediately and contains adapter stubs. Do not ship it in a generated bundle, remove its guard, or treat its placeholder calls as implementation. Generate a new module from the bundle manifest and verified target environment, then validate that module independently.
 
-## Post-Install Deployment and Operations Report
+## Chinese Deployment and Operations Report
 
-Every installable bundle must generate a concise Markdown report at `reports/deployment-and-operations.md` after the installation entrypoint finishes. An upgrade bundle that also deploys or changes running services must refresh the same report. An `images-only` bundle is exempt.
+Every installable bundle must generate a concise Simplified Chinese Markdown report at `reports/deployment-and-operations.md` after installation, reinstall, upgrade, or uninstall reaches a terminal result. An `images-only` bundle is exempt.
 
 Build the report from observed results and include:
 
@@ -123,6 +130,7 @@ Build the report from observed results and include:
 - deployed services, image tags and digests, service or workload state, health-check result, and exposed addresses or ports;
 - dependency-initialization tasks attempted, skipped, completed, or rolled back, plus SaaS dependency-configuration validation results;
 - the latest installation checkpoint, resume or reinstall activity, and any invalidated or incomplete stage;
+- uninstall scope, removed and retained resources, uninstall checkpoints, purge choices, and the exact resume or recovery command;
 - the bundle-owned NAT table, parent chain, user-defined chain, jump placement, rule summary, and per-node synchronization result;
 - important configuration, data, log, backup, and manifest paths;
 - copy-ready commands for status, start, stop, restart, health checks, and log viewing, using the bundle's generated management interface;
@@ -133,17 +141,34 @@ Keep the report short and operational. For multi-node K3s, add a compact per-nod
 
 Generate the report on successful, partially successful, and failed runs whenever the bundle directory is writable. Report generation is best-effort during failure handling: failure to write the report must be visible, but it must not replace or mask the original installation result and exit code.
 
+## Uninstall Behavior
+
+The public entrypoint is `install.sh --uninstall`; it may delegate to `scripts/uninstall.sh`. Before mutation, load the manifest and installation state, discover actual resources, classify ownership, and display a Simplified Chinese preview of everything to remove, retain, skip, or stop on.
+
+Default uninstall:
+
+- stops and removes verified bundle-owned workloads and generated service resources in reverse dependency order;
+- removes only bundle-owned external exposure and NAT entries, preserving foreign rules and shared chains;
+- preserves persistent data, user configuration, images, shared Docker or K3s runtimes, backups, reports, manuals, and sufficient state to resume or audit the uninstall;
+- does not remove an external dependency or a layered PaaS package merely because the SaaS bundle used it.
+
+Data purge, image deletion, and runtime removal are separate scopes. Require an exact preview and confirmation for each. Remove Docker or K3s only when ownership records prove the bundle installed it for exclusive use and a live check finds no unrelated workloads; otherwise stop.
+
+Checkpoint every uninstall stage atomically. Repeated or resumed uninstall must treat already-absent owned resources as completed only after verifying the expected retained state. On failure, preserve the original exit code and generate the Chinese partial report with the failed resource, node, reason, retained resources, and exact resume command.
+
 ## Validation Levels
 
 1. Manifest validation: required fields, references, categories, dependency graph, duplicate IDs, versions, digests, and target platforms.
 2. Static validation: shell syntax, YAML parsing, configuration consistency, file references, executable permissions, and secret scanning.
 3. Package validation: checksums, archive completeness, expected image count, runtime binaries, architecture, and reproducibility metadata.
-4. Local installation: clean-host install, repeated install, start, stop, restart, status, and uninstall behavior where supported.
+4. Local installation: clean-host install, repeated install, start, stop, restart, status, default uninstall, and interrupted-uninstall resume.
 5. Upgrade validation: supported old version to target version, configuration migration, data preservation, and rollback.
 6. K3s validation: server bootstrap, agent join, image availability on required nodes, workload scheduling, persistence, and node-specific failure reporting.
 7. Resume and reinstall validation: controlled failures at representative stages, correct checkpoint reuse and invalidation, data-preserving reinstall, explicitly confirmed clean reinstall, and preservation of the original failure exit code.
 8. SaaS bootstrap validation: provider-neutral task modeling, initialization ordering, idempotency, target-specific selectors, backup and rollback, provider-specific verification, and prevention of SaaS startup on failed prerequisites.
 9. Exposure and NAT validation: Docker publishing, K3s NodePort range and collision checks, existing-chain reuse, repeated execution without duplicate chains or jumps, rule ordering, persistence, per-node drift, continue-or-rollback prompts, and exact failed-node recovery commands.
+10. Uninstall validation: reverse dependency order, ownership refusal, default data preservation, optional purge confirmation, exposure and NAT cleanup, shared-runtime protection, repeated execution, controlled failure and resume, and Chinese terminal reporting.
+11. Chinese documentation validation: report and both manuals exist, describe the actual bundle rather than generic placeholders, use Simplified Chinese for headings and explanations, keep commands copy-ready, and cover install, management, recovery, and uninstall.
 
 For installable bundles, also test report generation for a successful run and at least one controlled failure path. Verify that the report reflects observed state, contains the required operations commands, redacts secrets, and preserves the installation exit code.
 
@@ -164,3 +189,5 @@ Report:
 - rollback and recovery instructions.
 - the post-install report path and whether successful and failure-path report generation were validated.
 - the installation resume state, SaaS bootstrap result, exposed ports, NAT chain reuse or creation decision, and per-node firewall synchronization status.
+- `docs/installation-guide.zh-CN.md` and `docs/operations-guide.zh-CN.md`, both in Simplified Chinese.
+- the uninstall capability, preservation defaults, optional purge scopes, tests executed, and resume command.

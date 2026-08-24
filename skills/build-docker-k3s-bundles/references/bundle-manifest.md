@@ -33,6 +33,15 @@ bundle:
   dependency_policy: layered
   offline: true
 
+localization:
+  report_language: zh-CN
+  manual_language: zh-CN
+
+documentation:
+  deployment_report: reports/deployment-and-operations.md
+  installation_guide: docs/installation-guide.zh-CN.md
+  operations_guide: docs/operations-guide.zh-CN.md
+
 platforms:
   - os: linux
     architecture: amd64
@@ -69,6 +78,27 @@ installation:
     - saas
     - exposure
     - health
+    - report
+
+uninstall:
+  enabled: true
+  entrypoint: install.sh
+  resume_enabled: true
+  preserve_data_by_default: true
+  remove_images_by_default: false
+  remove_runtime_by_default: false
+  stages:
+    - preflight
+    - stop-saas
+    - remove-saas
+    - stop-paas
+    - remove-paas
+    - remove-exposure
+    - remove-owned-nat
+    - remove-generated-config
+    - optional-images
+    - optional-runtime
+    - verify-retained-state
     - report
 
 packages:
@@ -210,10 +240,17 @@ testing:
 ## Installation State and Network Management
 
 - `installation.stages` defines checkpoint identities and dependency order. Runtime state records input fingerprints and observed results outside the declarative desired-state fields.
+- `uninstall` declares the safe removal state machine. The default preserves data, configuration, images, shared runtimes, backups, reports, manuals, and resumable state; destructive scopes remain explicit.
 - `exposure.docker` and `exposure.k3s_node_ports` drive management menus and deployment adapters.
 - `firewall.table` is normally `nat`; `parent_chain` is normally `PREROUTING`; `managed_chain` is the bundle-owned user-defined chain.
 - During modification, populate `managed_chain` with a verified existing chain name when compatible. At installation, recheck every target node before creating or reusing it.
 - `sync_all_cluster_nodes` applies the desired owned NAT rules to every declared server and agent. `on_node_failure: prompt` requires an interactive continue-or-rollback decision and an exact failed-node recovery command.
+
+## Chinese Documentation
+
+- `localization.report_language` and `localization.manual_language` are `zh-CN` for the required Simplified Chinese outputs.
+- `documentation` fixes the report, installation manual, and operations manual paths so scripts and terminal summaries can link to them.
+- Commands and technical identifiers remain exact; their explanations, warnings, labels, and procedures are written in Simplified Chinese.
 
 ## Image Identity
 

@@ -19,6 +19,7 @@ Ask only unanswered questions that materially affect the output. Group related q
 13. Which Docker published ports or K3s NodePorts must be exposed, and should the bundle manage external DNAT rules?
 14. If NAT management is required, which nodes, interfaces, destination addresses, protocols, ports, rule ordering, backend, and reboot-persistence behavior are required?
 15. For modifications, do existing scripts already create a user-defined chain or attach it to `nat/PREROUTING`, and is that chain known to belong to this bundle?
+16. For uninstall, which bundle-owned workloads, exposure rules, NAT rules, generated configuration, and images may be removed, and which persistent data, user configuration, backups, reports, and runtimes must be retained?
 
 Do not ask the user to paste reusable passwords, private keys, registry tokens, or K3s tokens into chat. Ask how credentials will be injected at execution time.
 
@@ -43,6 +44,8 @@ SaaS依赖配置：全部依赖目标、类型、选择参数和验证方式
 端口暴露：Docker发布端口 / K3s NodePort
 NAT管理：disabled / single-node / all-cluster-nodes
 NAT链：复用现有链 / 新建专属链 / 待确认
+卸载策略：默认保留数据 / 可选清理数据、镜像或专属运行时
+中文交付：部署报告 / 安装手册 / 运维管理手册
 关键假设：...
 ```
 
@@ -60,6 +63,7 @@ Pause and ask when:
 - a high or critical vulnerability has no clearly compatible fixed version;
 - a private registry requires credentials, custom CA trust, or insecure-registry configuration;
 - an operation would overwrite configuration, remove containers, delete images, remove volumes, or touch persistent data;
+- uninstall would delete persistent data, user configuration, images, backups, reports, the bundle state needed for resume, a shared runtime, or any resource whose ownership is ambiguous;
 - host changes are required, including firewall, SELinux, sysctl, package installation, systemd, storage, or network configuration;
 - an existing same-name NAT chain or PREROUTING jump has ambiguous ownership, incompatible rules, or multiple possible chain names;
 - a NAT rule is about to be created, changed, removed, repositioned, persisted, or synchronized to a node;
@@ -81,6 +85,9 @@ Unless repository conventions say otherwise:
 - generate `--dry-run` and non-interactive modes when appropriate;
 - preserve existing user configuration during modifications;
 - preserve persistent data and user configuration during reinstall; require explicit confirmation for clean or destructive reinstall;
+- make uninstall resumable and remove only verified bundle-owned runtime resources by default;
+- preserve persistent data, user configuration, images, shared runtimes, backups, reports, manuals, and uninstall state unless separately requested and confirmed;
+- generate the deployment report, installation guide, and operations guide in Simplified Chinese;
 - write atomic per-stage installation checkpoints and resume from the first invalid, failed, or incomplete stage;
 - leave external firewall management disabled unless requested;
 - reuse an existing NAT chain only after verifying that it belongs to the bundle and serves the same purpose;

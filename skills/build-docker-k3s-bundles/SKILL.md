@@ -1,6 +1,6 @@
 ---
 name: build-docker-k3s-bundles
-description: Create or modify reproducible container installation bundles for Docker, Docker Compose, or K3s, including full, PaaS-only, SaaS-only, custom, image-only, installable, and upgrade packages. Use when Codex needs to collect deployment requirements, organize public/private/provided images, prepare SaaS dependency initialization and configuration, generate resumable installers and management scripts, manage external ports or bundle-owned NAT rules, prepare offline artifacts, or validate an existing container bundle. Do not use for routine operation of an already deployed cluster unless the requested work changes or rebuilds the bundle.
+description: Create or modify reproducible container installation bundles for Docker, Docker Compose, or K3s, including full, PaaS-only, SaaS-only, custom, image-only, installable, and upgrade packages. Use when Codex needs to collect deployment requirements, organize public/private/provided images, prepare SaaS dependency initialization and configuration, generate resumable install, reinstall, uninstall, and management scripts, produce Chinese deployment reports and operator manuals, manage external ports or bundle-owned NAT rules, prepare offline artifacts, or validate an existing container bundle. Do not use for routine operation of an already deployed cluster unless the requested work changes or rebuilds the bundle.
 ---
 
 # Build Docker/K3s Bundles
@@ -20,8 +20,9 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 6. When modifying an existing bundle, inspect its network-management code before designing NAT rules. Reuse a verified existing bundle-owned chain name and placement instead of creating a parallel chain.
 7. Build or update the bundle manifest according to `references/bundle-manifest.md`.
 8. Follow the applicable path in `references/workflow.md`, the engineering rules in `references/implementation-guidance.md`, and the SaaS, resumability, exposure, and firewall rules in `references/saas-bootstrap-and-network-management.md`.
-9. For every installable bundle, make the installation entrypoint generate a concise post-install deployment and operations report according to `references/implementation-guidance.md`.
-10. Validate generated configuration, checksums, image metadata, scripts, report generation, resumability, reinstall behavior, exposure and firewall management, upgrade behavior, rollback behavior, and package contents before reporting completion.
+9. For every installable bundle, make the installation entrypoint generate a concise Simplified Chinese deployment report and include Simplified Chinese installation and operations manuals according to `references/chinese-deliverables.md`.
+10. Make `install.sh` provide resumable, ownership-aware uninstall behavior with data-preserving defaults.
+11. Validate generated configuration, checksums, image metadata, scripts, Chinese documentation, report generation, resumability, reinstall and uninstall behavior, exposure and firewall management, upgrade behavior, rollback behavior, and package contents before reporting completion.
 
 ## Interaction Rules
 
@@ -42,6 +43,8 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Do not loop indefinitely searching for a vulnerability-free version. Offer compatible upgrade, mitigation, documented risk acceptance, or failure.
 - Make installation and management operations idempotent where practical.
 - Installable bundles must persist atomic stage checkpoints and support status, resume, restart-from-stage, and reinstall. Reinstall preserves persistent data and user configuration unless destructive cleanup is explicitly requested and confirmed.
+- `install.sh` must support `--uninstall` and resumable uninstall. By default it removes only verified bundle-owned runtime resources while preserving persistent data, user configuration, images, shared runtimes, backups, state, reports, and manuals.
+- Purging data, deleting images, removing Docker or K3s, or deleting shared or ambiguously owned resources requires separate explicit options, a precise preview, backups where applicable, and confirmation.
 - Back up affected configuration and retain rollback metadata before upgrades.
 - Treat Docker and K3s differences as deployment adapters; share image, service, dependency, and security metadata.
 - Do not start a SaaS service until every declared dependency-initialization task has completed or been explicitly skipped and its dependency configuration has passed validation.
@@ -51,7 +54,8 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - For a cluster, synchronize the desired bundle-owned NAT rules to every declared server and agent node, detect per-node drift, and record per-node results.
 - The exposure and firewall pseudocode examples are design references only. Never execute, package, or copy them verbatim; replace every adapter stub with an implementation derived from the actual bundle, runtime, firewall backend, ownership rules, and authorization boundaries.
 - Generate a validation report even when no Linux test host is available, clearly distinguishing static validation from installation testing.
-- Every installable bundle must generate `reports/deployment-and-operations.md` when its installation entrypoint finishes. Generate the report for successful, partially successful, and failed runs when the filesystem remains writable; never let report-generation failure hide the installation result.
+- Every installable bundle must generate `reports/deployment-and-operations.md` in Simplified Chinese when installation, reinstall, upgrade, or uninstall reaches a terminal result. Generate it for successful, partially successful, and failed runs when the filesystem remains writable; never let report-generation failure hide the operation result.
+- Every installable bundle must include `docs/installation-guide.zh-CN.md` and `docs/operations-guide.zh-CN.md`, both written in Simplified Chinese and derived from the actual manifest and generated commands.
 - Base the post-install report on observed execution results rather than planned state. Redact secrets, state which checks were not executed, and print the report path in the final console summary.
 
 ## References
@@ -61,6 +65,7 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Bundle manifest fields and example: `references/bundle-manifest.md`
 - Package layout, module boundaries, security, and tests: `references/implementation-guidance.md`
 - SaaS bootstrap, resumable installation, external exposure, and bundle-owned NAT management: `references/saas-bootstrap-and-network-management.md`
+- Simplified Chinese deployment report, manuals, and uninstall requirements: `references/chinese-deliverables.md`
 - Reference-only external exposure pseudocode: `references/examples/manage-exposure.pseudocode.sh`
 - Reference-only bundle-owned NAT pseudocode: `references/examples/manage-firewall.pseudocode.sh`
 - Starter manifest: `assets/templates/bundle.yaml`
