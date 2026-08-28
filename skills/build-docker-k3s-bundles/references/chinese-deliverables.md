@@ -56,6 +56,7 @@ Every command must match the generated script's real CLI. Do not document an opt
 
 - 服务启动、停止、重启、状态、健康检查、版本和日志；
 - PaaS、SaaS、全部服务和单个服务的选择方式；
+- `manage.sh` 的模块化命令结构，以及 Compose/K3s 配置修改后的快速校验、预览、重载、验证和回滚；
 - 镜像导入、切换、版本核对和失败回滚；
 - Docker 发布端口和 K3s NodePort 的查询、增删改、冲突检查和恢复；
 - bundle 专属 NAT 链的查询、增删改、规则位置、同步、漂移检查、修复和持久化；

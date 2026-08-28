@@ -1,6 +1,6 @@
 ---
 name: build-docker-k3s-bundles
-description: Create or modify reproducible container installation bundles for Docker, Docker Compose, or K3s, including full, PaaS-only, SaaS-only, custom, image-only, installable, and upgrade packages. Use when Codex needs to collect deployment requirements, organize public/private/provided images, prepare SaaS dependency initialization and configuration, generate resumable install, reinstall, uninstall, and management scripts, produce Chinese deployment reports and operator manuals, manage external ports or bundle-owned NAT rules, prepare offline artifacts, or validate an existing container bundle. Do not use for routine operation of an already deployed cluster unless the requested work changes or rebuilds the bundle.
+description: Create or modify reproducible container installation bundles for Docker, Docker Compose, or K3s, including full, PaaS-only, SaaS-only, custom, image-only, installable, and upgrade packages. Use when Codex needs to collect deployment requirements, organize images, prepare SaaS dependency initialization, generate resumable installation and modular management tooling, safely reload manually edited Compose or K3s YAML configuration, manage permanent or temporary external exposure and bundle-owned NAT rules, produce Chinese deliverables, prepare offline artifacts, or validate an existing bundle. Do not use for routine operation of an already deployed cluster unless the requested work changes or rebuilds the bundle.
 ---
 
 # Build Docker/K3s Bundles
@@ -19,10 +19,10 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 5. When the bundle includes SaaS, inventory every PaaS or external dependency regardless of type, confirm whether dependency data or configuration must be imported before SaaS starts, and validate every SaaS service's effective dependency configuration.
 6. When modifying an existing bundle, inspect its network-management code before designing NAT rules. Reuse a verified existing bundle-owned chain name and placement instead of creating a parallel chain.
 7. Build or update the bundle manifest according to `references/bundle-manifest.md`.
-8. Follow the applicable path in `references/workflow.md`, the engineering rules in `references/implementation-guidance.md`, and the SaaS, resumability, exposure, and firewall rules in `references/saas-bootstrap-and-network-management.md`.
+8. Follow the applicable path in `references/workflow.md`, the engineering rules in `references/implementation-guidance.md`, the management architecture and reload contract in `references/management-architecture-and-reload.md`, the temporary listener contract in `references/temporary-port-exposure.md`, and the SaaS, resumability, exposure, and firewall rules in `references/saas-bootstrap-and-network-management.md`.
 9. For every installable bundle, make the installation entrypoint generate a concise Simplified Chinese deployment report and include Simplified Chinese installation and operations manuals according to `references/chinese-deliverables.md`.
 10. Make `install.sh` provide resumable, ownership-aware uninstall behavior with data-preserving defaults.
-11. Validate generated configuration, checksums, image metadata, scripts, Chinese documentation, report generation, resumability, reinstall and uninstall behavior, exposure and firewall management, upgrade behavior, rollback behavior, and package contents before reporting completion.
+11. Validate generated configuration, checksums, image metadata, scripts, Chinese documentation, report generation, resumability, reinstall and uninstall behavior, modular management dispatch, configuration reload, exposure and firewall management, upgrade behavior, rollback behavior, and package contents before reporting completion.
 
 ## Interaction Rules
 
@@ -42,13 +42,20 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Do not remove a private image from the acquisition plan merely because it is categorized as PaaS. Remove it only when a verified supplied artifact or reachable source replaces the download.
 - Do not loop indefinitely searching for a vulnerability-free version. Offer compatible upgrade, mitigation, documented risk acceptance, or failure.
 - Make installation and management operations idempotent where practical.
+- Keep `manage.sh` as a small, stable entrypoint that performs common setup, command discovery, authorization, locking, and dispatch. Put service, reload, exposure, firewall, backup, and other concrete behavior in independently testable management modules; do not accumulate all management logic in `manage.sh`.
+- Permit management modules to use shell or Python according to complexity. Route both through one explicit command registry and common lifecycle contract; include a verified offline Python runtime or dependency set when generated Python modules cannot rely on the target host.
+- Installable bundles must provide a safe quick-reload command for manually edited Docker Compose or K3s YAML configuration. It must discover or accept the affected file, validate and preview the effective change, back up last-known-good state, apply only the intended scope, verify health or rollout, and provide rollback without performing an implicit image upgrade or destructive cleanup.
 - Installable bundles must persist atomic stage checkpoints and support status, resume, restart-from-stage, and reinstall. Reinstall preserves persistent data and user configuration unless destructive cleanup is explicitly requested and confirmed.
 - `install.sh` must support `--uninstall` and resumable uninstall. By default it removes only verified bundle-owned runtime resources while preserving persistent data, user configuration, images, shared runtimes, backups, state, reports, and manuals.
 - Purging data, deleting images, removing Docker or K3s, or deleting shared or ambiguously owned resources requires separate explicit options, a precise preview, backups where applicable, and confirmation.
 - Back up affected configuration and retain rollback metadata before upgrades.
 - Treat Docker and K3s differences as deployment adapters; share image, service, dependency, and security metadata.
 - Do not start a SaaS service until every declared dependency-initialization task has completed or been explicitly skipped and its dependency configuration has passed validation.
-- Management scripts must support external port discovery and CRUD for Docker port publishing and K3s NodePort services, with conflict checks, preview, backup, verification, and rollback.
+- `manage.sh` must support external port discovery and CRUD for both persistent exposure and temporary host listeners. A temporary listener must let the operator select a service or container and enter a host endpoint such as `0.0.0.0:8848`; when the target port is unambiguous, infer it from the manifest, otherwise require an explicit container or service port.
+- Provide equivalent interactive-menu and non-interactive commands for temporary exposure. The minimum command surface is `expose add`, `expose list`, `expose status`, `expose remove`, and `expose cleanup`; follow the syntax, lifecycle, adapter, security, and verification contract in `references/temporary-port-exposure.md`.
+- Temporary exposure must not silently rewrite the source bundle manifest, Compose file, or K3s workload. Record it as a bundle-owned lease, support optional TTL expiry, make removal idempotent, do not restore it after host reboot unless the operator explicitly requested persistence, and clean up only verified bundle-owned resources.
+- Treat `0.0.0.0` and `[::]` as public-listen requests. Show the resolved target, protocol, interfaces, firewall effect, lifetime, and rollback command before creation, and require explicit confirmation or a dedicated non-interactive public-exposure acknowledgement.
+- Docker port publishing and K3s NodePort remain valid persistent adapters, but they do not satisfy every temporary-listener request. For an already-running Docker container or a K3s request for an exact endpoint such as `0.0.0.0:8848`, choose a verified temporary forwarding adapter that avoids an unnecessary workload recreation and is fully owned, observable, removable, and included in offline dependencies.
 - Treat `nat` as the iptables table, `PREROUTING` as its built-in chain, and the bundle-specific object as a user-defined chain. Manage only a verified bundle-owned chain and its jump; do not alter Docker, K3s, CNI, or unrelated user rules.
 - At build-modification time and again at installation time, detect existing NAT chains and jumps. Reuse a compatible same-name chain idempotently, repair only missing owned entries, and stop for ambiguous ownership or incompatible contents.
 - For a cluster, synchronize the desired bundle-owned NAT rules to every declared server and agent node, detect per-node drift, and record per-node results.
@@ -64,8 +71,10 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Questions, confirmations, and stopping rules: `references/requirements.md`
 - Bundle manifest fields and example: `references/bundle-manifest.md`
 - Package layout, module boundaries, security, and tests: `references/implementation-guidance.md`
+- Thin `manage.sh`, management module contract, Python dispatch, and Compose/K3s quick reload: `references/management-architecture-and-reload.md`
 - SaaS bootstrap, resumable installation, external exposure, and bundle-owned NAT management: `references/saas-bootstrap-and-network-management.md`
 - Simplified Chinese deployment report, manuals, and uninstall requirements: `references/chinese-deliverables.md`
 - Reference-only external exposure pseudocode: `references/examples/manage-exposure.pseudocode.sh`
 - Reference-only bundle-owned NAT pseudocode: `references/examples/manage-firewall.pseudocode.sh`
+- Temporary host-listener command and lifecycle contract: `references/temporary-port-exposure.md`
 - Starter manifest: `assets/templates/bundle.yaml`
