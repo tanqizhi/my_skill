@@ -9,7 +9,7 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 
 ## Workflow
 
-Before designing or changing management tooling, read `references/native-management-roadmap.md`. It records the agreed future native/musl direction and its pending decisions; it is not evidence of an available implementation.
+Before designing or changing management tooling, read `references/management-base-roadmap.md`. It records the Python-first management base, superseding the earlier native/musl direction, and pending offline runtime decisions; it is not evidence of an accepted release.
 
 1. Determine whether this is a new bundle or a modification of an existing bundle.
 2. Read `references/requirements.md`, collect missing blocking information, and present a concise requirement summary for confirmation.
@@ -70,7 +70,7 @@ Before designing or changing management tooling, read `references/native-managem
 
 ## References
 
-- Planned native/musl management base, dual interaction modes, artifact reuse, and project customization: `references/native-management-roadmap.md`
+- Python-first management base, dual interaction modes, artifact reuse, and project customization: `references/management-base-roadmap.md`
 - Full decision flow and management flow: `references/workflow.md`
 - Questions, confirmations, and stopping rules: `references/requirements.md`
 - Bundle manifest fields and example: `references/bundle-manifest.md`
