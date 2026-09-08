@@ -9,6 +9,8 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 
 ## Workflow
 
+Before designing or changing management tooling, read `references/native-management-roadmap.md`. It records the agreed future native/musl direction and its pending decisions; it is not evidence of an available implementation.
+
 1. Determine whether this is a new bundle or a modification of an existing bundle.
 2. Read `references/requirements.md`, collect missing blocking information, and present a concise requirement summary for confirmation.
 3. Model the request across three independent dimensions:
@@ -68,6 +70,7 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 
 ## References
 
+- Planned native/musl management base, dual interaction modes, artifact reuse, and project customization: `references/native-management-roadmap.md`
 - Full decision flow and management flow: `references/workflow.md`
 - Questions, confirmations, and stopping rules: `references/requirements.md`
 - Bundle manifest fields and example: `references/bundle-manifest.md`
