@@ -18,7 +18,7 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 4. For SaaS-only or custom bundles, resolve dependencies using `include`, `external`, or `layered` policy. Prefer `layered` when a reusable PaaS base package is appropriate.
 5. When the bundle includes SaaS, inventory every PaaS or external dependency regardless of type, confirm whether dependency data or configuration must be imported before SaaS starts, and validate every SaaS service's effective dependency configuration.
 6. When modifying an existing bundle, inspect its network-management code before designing NAT rules. Reuse a verified existing bundle-owned chain name and placement instead of creating a parallel chain.
-7. Build or update the bundle manifest according to `references/bundle-manifest.md`.
+7. Read `references/installation-layout.md` and establish the mandatory installed directory contract before generating artifacts. Build or update the bundle manifest according to `references/bundle-manifest.md`, including the layout version and install-root policy.
 8. Follow the applicable path in `references/workflow.md`, the engineering rules in `references/implementation-guidance.md`, the management architecture and reload contract in `references/management-architecture-and-reload.md`, the temporary listener contract in `references/temporary-port-exposure.md`, and the SaaS, resumability, exposure, and firewall rules in `references/saas-bootstrap-and-network-management.md`.
 9. For every installable bundle, make the installation entrypoint generate a concise Simplified Chinese deployment report and include Simplified Chinese installation and operations manuals according to `references/chinese-deliverables.md`.
 10. Make `install.sh` provide resumable, ownership-aware uninstall behavior with data-preserving defaults.
@@ -42,6 +42,7 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Do not remove a private image from the acquisition plan merely because it is categorized as PaaS. Remove it only when a verified supplied artifact or reachable source replaces the download.
 - Do not loop indefinitely searching for a vulnerability-free version. Offer compatible upgrade, mitigation, documented risk acceptance, or failure.
 - Make installation and management operations idempotent where practical.
+- New bundles must follow `references/installation-layout.md`: use the declared installed root and fixed internal paths, distinguish extraction from installation, and record installed identity atomically. Never guess configuration locations from the current directory or host-wide discovery. Existing nonconforming bundles require an approved migration before claiming compatibility.
 - Keep `manage.sh` as a small, stable entrypoint that performs common setup, command discovery, authorization, locking, and dispatch. Put service, reload, exposure, firewall, backup, and other concrete behavior in independently testable management modules; do not accumulate all management logic in `manage.sh`.
 - Permit management modules to use shell or Python according to complexity. Route both through one explicit command registry and common lifecycle contract; include a verified offline Python runtime or dependency set when generated Python modules cannot rely on the target host.
 - Installable bundles must provide a safe quick-reload command for manually edited Docker Compose or K3s YAML configuration. It must discover or accept the affected file, validate and preview the effective change, back up last-known-good state, apply only the intended scope, verify health or rollout, and provide rollback without performing an implicit image upgrade or destructive cleanup.
@@ -70,6 +71,7 @@ Create safe, reproducible installation bundles driven by a single declarative bu
 - Full decision flow and management flow: `references/workflow.md`
 - Questions, confirmations, and stopping rules: `references/requirements.md`
 - Bundle manifest fields and example: `references/bundle-manifest.md`
+- Mandatory installed directories, configuration paths, ownership, and layout validation: `references/installation-layout.md`
 - Package layout, module boundaries, security, and tests: `references/implementation-guidance.md`
 - Thin `manage.sh`, management module contract, Python dispatch, and Compose/K3s quick reload: `references/management-architecture-and-reload.md`
 - SaaS bootstrap, resumable installation, external exposure, and bundle-owned NAT management: `references/saas-bootstrap-and-network-management.md`

@@ -19,6 +19,8 @@ deploy_targets: [docker, k3s]
 
 ## Recommended Schema
 
+The `layout` fields and installed paths are mandatory for new bundles; see `installation-layout.md`. Other service-specific entries below are illustrative.
+
 ```yaml
 api_version: bundle.codex/v1alpha1
 
@@ -32,6 +34,11 @@ bundle:
     - k3s
   dependency_policy: layered
   offline: true
+
+layout:
+  version: 1
+  default_install_parent: /opt/bundles
+  allow_install_dir_override: true
 
 localization:
   report_language: zh-CN
@@ -122,26 +129,28 @@ services:
       - postgres
       - redis
     configuration:
-      compose_file: deploy/docker/application-api.yaml
+      compose_file: deploy/docker/compose.yaml
+      compose_service: application-api
       k3s_manifest: deploy/k3s/application-api.yaml
-      env_template: config/application-api.env.example
+      env_template: config/services/application-api/service.env.example
+      env_file: config/services/application-api/service.env
       dependency_targets:
         - id: primary-data-store
           kind: data-store
           provider: postgresql
           service: postgres
-          endpoint_ref: config/postgres-endpoint
+          endpoint_ref: config/services/application-api/postgres-endpoint
           selectors:
             database: application
-          credential_ref: secrets/application-db
+          credential_ref: secrets/application-api/application-db
         - id: configuration-center
           kind: configuration-provider
           provider: nacos
-          endpoint_ref: config/nacos-endpoint
+          endpoint_ref: config/services/application-api/nacos-endpoint
           selectors:
             namespace: application
             group: DEFAULT_GROUP
-          credential_ref: secrets/nacos
+          credential_ref: secrets/application-api/nacos
     healthcheck:
       type: http
       endpoint: /health
@@ -239,6 +248,9 @@ testing:
 
 ## Installation State and Network Management
 
+- `layout.version: 1` selects the fixed contract in `installation-layout.md`. `layout.default_install_parent` is `/opt/bundles`; append `bundle.name` to obtain the default root. `allow_install_dir_override: true` permits an explicit first-install root override, not arbitrary internal directory names.
+- `installation.state_directory` must be `state`. Persist the actual root and runtime identities in `state/installation.json`; declarative package metadata must not pretend to be observed installed state.
+- Configuration references must follow the fixed paths. Declare every application-native config filename; persistent storage exceptions must record exact source identity, service, ownership, and preservation policy.
 - `installation.stages` defines checkpoint identities and dependency order. Runtime state records input fingerprints and observed results outside the declarative desired-state fields.
 - `uninstall` declares the safe removal state machine. The default preserves data, configuration, images, shared runtimes, backups, reports, manuals, and resumable state; destructive scopes remain explicit.
 - `exposure.docker` and `exposure.k3s_node_ports` drive management menus and deployment adapters.

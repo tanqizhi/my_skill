@@ -1,6 +1,8 @@
 # Implementation Guidance
 
-## Suggested Package Layout
+## Required Package And Installed Layout
+
+Follow `installation-layout.md` for mandatory destinations, root resolution, file ownership, and package-mode exceptions. The tree below is an overview, not permission to rename directories or choose different configuration paths.
 
 ```text
 bundle-name/
@@ -21,11 +23,19 @@ bundle-name/
 |   `-- k3s/
 |-- deploy/
 |   |-- docker/
+|   |   `-- compose.yaml
 |   `-- k3s/
 |-- bootstrap/
 |   `-- dependency-data/
 |-- config/
-|   `-- *.env.example
+|   |-- compose.override.yaml
+|   |-- compose.env
+|   |-- services/
+|   `-- k3s/
+|-- secrets/                     Runtime-created, never ship real credentials
+|-- data/                        Per-service persistent data
+|-- logs/                        management/ and optional services/
+|-- backups/                     Protected operation snapshots
 |-- scripts/
 |   |-- lib/
 |   |-- install-runtime.sh
@@ -44,7 +54,7 @@ bundle-name/
 |   |-- lib/                    Shared dispatch, state, lock, log, and adapter helpers
 |   |-- python/                 Optional complex management modules and vendored code
 |   `-- commands.yaml           Explicit command-to-module registry
-|-- state/                       Generated at runtime
+|-- state/                       Generated at runtime, includes installation.json
 |-- inventory/
 |   |-- nodes.example.yaml
 |   `-- images.yaml
@@ -172,6 +182,7 @@ Checkpoint every uninstall stage atomically. Repeated or resumed uninstall must 
 1. Manifest validation: required fields, references, categories, dependency graph, duplicate IDs, versions, digests, and target platforms.
 2. Static validation: shell syntax, YAML parsing, configuration consistency, file references, executable permissions, and secret scanning.
 3. Package validation: checksums, archive completeness, expected image count, runtime binaries, architecture, and reproducibility metadata.
+   Include the mandatory layout checks from `installation-layout.md`; configuration references and installer destinations must agree. Layout host tests must be reported separately from static/package checks.
 4. Local installation: clean-host install, repeated install, start, stop, restart, status, default uninstall, and interrupted-uninstall resume.
 5. Upgrade validation: supported old version to target version, configuration migration, data preservation, and rollback.
 6. K3s validation: server bootstrap, agent join, image availability on required nodes, workload scheduling, persistence, and node-specific failure reporting.

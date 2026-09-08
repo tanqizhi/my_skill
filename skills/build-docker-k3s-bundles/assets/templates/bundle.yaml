@@ -10,6 +10,11 @@ bundle:
   dependency_policy: layered
   offline: true
 
+layout:
+  version: 1
+  default_install_parent: /opt/bundles
+  allow_install_dir_override: true
+
 localization:
   report_language: zh-CN
   manual_language: zh-CN

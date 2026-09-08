@@ -16,7 +16,7 @@ Read this reference whenever generating or modifying `manage.sh`, adding a manag
 
 Put concrete behavior such as service control, reload, backup, exposure, firewall, diagnostics, and upgrade orchestration in separate modules. Load only the selected module. Do not use `eval`, filename-derived execution, or automatic discovery from operator-writable directories.
 
-Prefer a layout equivalent to:
+For new bundles, use these fixed management paths together with `installation-layout.md`:
 
 ```text
 manage.sh
@@ -36,7 +36,7 @@ management/
     `-- bundle_manage/
 ```
 
-Adapt names to an existing bundle instead of creating a parallel framework. The required property is separation of responsibilities and a stable dispatcher, not this exact directory spelling.
+For legacy bundles, retain existing names only under the explicit legacy/migration policy in `installation-layout.md`; do not create a parallel framework. New layout-version-1 bundles must not rename these public paths.
 
 ## Command Registry And Module Contract
 
@@ -95,7 +95,7 @@ Provide a convenient default command and explicit runtime forms:
 ./manage.sh reload rollback <reload-id>
 ```
 
-`./manage.sh reload` should use the manifest, installed runtime, and stored fingerprints to find manually changed managed configuration. If exactly one safe scope is determined, preview and reload it. If both Docker and K3s are enabled, multiple unrelated files changed, or the affected scope is ambiguous, show the candidates and require an explicit runtime or file selection.
+`./manage.sh reload` should use the fixed installed paths, manifest, installed runtime, and stored fingerprints to identify changes only within registered inputs. Never search the host or current directory for candidate configuration. If exactly one safe scope is determined, preview and reload it. If both Docker and K3s are enabled, multiple unrelated files changed, or the affected scope is ambiguous, show the candidates and require an explicit runtime or file selection.
 
 By default accept only files declared by the bundle manifest or registered as user-managed overrides beneath approved configuration roots. Reject path traversal, symlink escapes, device files, and unrelated arbitrary YAML. Supporting `--file` does not grant permission to apply any host file.
 
