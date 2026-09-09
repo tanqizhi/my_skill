@@ -1,0 +1,12 @@
+{
+  "artifact_sha256": "3f06bf412be1054141995dabc29a0224bfb08ddbccb7def93049c5483b35da9f",
+  "python": "3.12.14",
+  "tests": 194,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "success": true,
+  "scope": "Packaged modules, source entrypoints, real local Compose configuration parser, mocked mutations",
+  "remote_deployment": "Not evaluated by this local suite; see separate deployed reports",
+  "runtime_mutation_integration": "Not evaluated by this local suite; see separate integration reports"
+}

@@ -19,6 +19,16 @@ localization:
   report_language: zh-CN
   manual_language: zh-CN
 
+management:
+  implementation: python-portable
+  scope: management-only
+  entrypoint: manage.sh
+  application: manage.pyz
+  release_manifest: management/release.json
+  runtime_directory: runtime/python
+  artifact_sha256: "" # Fill from the selected, verified release.
+  required_capabilities: [] # Compare with actual release capabilities before packaging.
+
 documentation:
   deployment_report: reports/deployment-and-operations.md
   installation_guide: docs/installation-guide.zh-CN.md

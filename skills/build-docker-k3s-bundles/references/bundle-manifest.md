@@ -21,6 +21,8 @@ deploy_targets: [docker, k3s]
 
 The `layout` fields and installed paths are mandatory for new bundles; see `installation-layout.md`. Other service-specific entries below are illustrative.
 
+For installable Docker bundles, declare `management.implementation: python-portable`, `scope: management-only`, `entrypoint: manage.sh`, `application: manage.pyz`, `runtime_directory: runtime/python`, `release_manifest: management/release.json`, the selected `artifact_sha256`, and `required_capabilities`. Check this inventory against the actual release, not old menu/reload examples. See `portable-management.md`. The current portable release is Docker-only: the dual Docker/K3s schema example below does not imply that it supports both adapters.
+
 ```yaml
 api_version: bundle.codex/v1alpha1
 

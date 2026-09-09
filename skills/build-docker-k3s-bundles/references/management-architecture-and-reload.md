@@ -2,9 +2,15 @@
 
 Read this reference whenever generating or modifying `manage.sh`, adding a management command, dispatching complex work to Python, or supporting reload after an operator manually edits Docker Compose or K3s YAML configuration.
 
-## Thin Entrypoint
+## Current Portable Implementation Takes Precedence
 
-`manage.sh` is a stable front controller, not the implementation of every management feature. Limit it to:
+For new bundles, use `portable-management.md` and the supplied Python manager. The old Shell layout and registry examples below apply only to legacy implementations or approved adapter design; they do not require generating Shell modules, `management/commands.yaml`, or a second dispatcher. The actual layout is root `manage.sh` + `manage.pyz`, bundled `runtime/python/`, and `management/release.json`. Its explicit allowlist is `managebase.operations.COMMANDS`; parsing, locks and operation lifecycle live in Python, not the launcher.
+
+This release does not implement the quick-reload command surface below. Those sections are safety/design requirements for a future scoped extension, not copy-ready supported commands. Installation, reinstall, uninstall and upgrade orchestration remain installer responsibilities. Do not package upgrade orchestration inside the management base.
+
+## Legacy Shell Entrypoint
+
+For an explicitly retained legacy Shell implementation only, `manage.sh` is a stable front controller, not the implementation of every feature. The following Shell duties and registry example are not instructions for the portable launcher. Limit a legacy front controller to:
 
 - resolving and validating the installed bundle root
 - loading a small common bootstrap library
@@ -14,9 +20,9 @@ Read this reference whenever generating or modifying `manage.sh`, adding a manag
 - dispatching exactly one registered command module
 - preserving the selected module's exit code and printing its recovery information
 
-Put concrete behavior such as service control, reload, backup, exposure, firewall, diagnostics, and upgrade orchestration in separate modules. Load only the selected module. Do not use `eval`, filename-derived execution, or automatic discovery from operator-writable directories.
+Put concrete behavior such as service control, reload, backup, exposure, firewall and diagnostics in separate modules. Do not use `eval`, filename-derived execution, or automatic discovery from operator-writable directories.
 
-For new bundles, use these fixed management paths together with `installation-layout.md`:
+Legacy Shell framework example (new portable bundles use the paths above):
 
 ```text
 manage.sh
@@ -36,11 +42,11 @@ management/
     `-- bundle_manage/
 ```
 
-For legacy bundles, retain existing names only under the explicit legacy/migration policy in `installation-layout.md`; do not create a parallel framework. New layout-version-1 bundles must not rename these public paths.
+For legacy bundles, retain existing names only under the explicit legacy/migration policy in `installation-layout.md`; do not create a parallel framework.
 
 ## Command Registry And Module Contract
 
-Use a declarative, bundle-owned allowlist that maps command paths to an implementation type and entrypoint. Validate its schema and ownership before dispatch.
+The portable implementation uses the Python `COMMANDS` allowlist. A retained legacy implementation may use a declarative, bundle-owned allowlist mapping command paths to implementation type and entrypoint; validate its schema and ownership before dispatch.
 
 Conceptual registry entry:
 
@@ -72,7 +78,7 @@ Modules return documented exit codes and a small structured result containing st
 
 ## Python-Backed Management
 
-Use Python when structured parsing, dependency graphs, concurrent node orchestration, API clients, or complex state transitions would become fragile in shell. Ordinary runtime command wrappers may remain shell modules.
+The portable base keeps business logic in Python. Do not add Shell modules to it. The following shared safety contract also applies to retained legacy Python-backed implementations.
 
 - Dispatch Python through a single verified wrapper rather than invoking an arbitrary interpreter from each module.
 - Prefer a bundle-contained Python runtime for offline or version-sensitive behavior. A system Python may be used only after checking the required version and modules.
@@ -130,7 +136,7 @@ Required behavior:
 - retain a redacted rendered-config snapshot for comparison while protecting secrets
 - identify changed services where reliable; allow the operator to choose targeted or whole-project reconciliation when dependencies make the scope uncertain
 - use declarative reconciliation equivalent to `compose up -d` for the approved services, adding `--no-deps` only when dependency analysis proves it appropriate
-- do not add `--pull`, `--build`, `--remove-orphans`, volume removal, or pruning unless separately requested, previewed, and confirmed
+- explicitly use `--pull never` and `--no-build` for offline reconciliation; do not enable pulling/building, `--remove-orphans`, volume removal or pruning unless separately requested, previewed and confirmed
 - verify container state and declared health checks after reconciliation
 - restore the last-known-good Compose inputs and reconcile them during rollback
 
@@ -180,7 +186,7 @@ The Simplified Chinese operations guide must explain:
 At minimum, validate:
 
 - unknown commands cannot execute arbitrary modules
-- only the selected shell or Python module is loaded
+- only the selected operation executes; shared Python imports must have no workload side effects
 - Python runtime and offline dependencies pass checksum and version checks
 - a no-change reload exits idempotently without restarting workloads
 - invalid YAML and invalid effective Compose configuration stop before apply

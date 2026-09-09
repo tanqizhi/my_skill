@@ -21,8 +21,8 @@ All paths below are relative to the installed root, or to the package root for s
 | --- | --- |
 | `bundle.yaml` | Installed declarative manifest; installer-maintained, contains no secrets |
 | `install.sh`, `manage.sh` | Stable public entrypoints |
-| `management/commands.yaml` | Explicit management command registry |
-| `management/commands/`, `management/lib/`, `management/python/` | Management implementation; not operator-editable configuration |
+| `manage.pyz` | Packaged Python management modules and explicit internal command allowlist |
+| `management/release.json`, `management/checksums.txt` | Manager source/runtime identity and shipped-file checksums |
 | `scripts/`, `scripts/lib/` | Installer helpers and lifecycle modules |
 | `deploy/docker/compose.yaml` | Single base Compose project file, shipped by the package |
 | `config/compose.override.yaml` | Operator-maintained Compose overrides, always loaded after the base |
@@ -35,7 +35,7 @@ All paths below are relative to the installed root, or to the package root for s
 | `logs/management/` | Installer and management logs |
 | `logs/services/<service-id>/` | Application file logs when needed; runtime stdout logs remain runtime-managed |
 | `state/installation.json` | Atomic installed-layout and instance record |
-| `state/install/`, `state/uninstall/`, `state/reload/`, `state/exposure/`, `state/firewall/` | Separate checkpoints and operation records |
+| `state/install/`, `state/uninstall/`, `state/reload/`, `state/exposure/`, `state/firewall/`, `state/image-import/` | Separate checkpoints and operation records; only implemented operations create their records |
 | `state/locks/` | Shared mutation-lock location |
 | `backups/<operation-id>/` | Protected configuration snapshots and rollback metadata |
 | `runtime/docker/`, `runtime/compose/`, `runtime/k3s/`, `runtime/python/` | Applicable offline runtime artifacts, not runtime-owned system data |
@@ -46,6 +46,8 @@ All paths below are relative to the installed root, or to the package root for s
 | `README.md`, `checksums.txt` | Package entry documentation and shipped-artifact checksums |
 
 Do not invent alternative configuration roots such as `conf/`, `etc/`, or service directories alongside the installed root. Application-native filenames beneath `config/services/<service-id>/` are allowed, but must be explicitly listed in the service manifest. Do not locate inputs by scanning for `*.yaml`, choosing the first match, or falling back to the extraction directory.
+
+The supplied manager uses `runtime/python/bin/python3.12`, `runtime/python/lib/python3.12/` and `runtime/python/share/terminfo/`. Keep `manage.sh` and `manage.pyz` directly at the installed root. Its Python command allowlist replaces the older `management/commands.yaml` and Shell module paths; do not create empty compatibility files. This implementation clarification does not change layout version 1 or configuration/state paths. See `portable-management.md` for the exact supported JSON interface and capability limits.
 
 External storage is an explicit exception, not an alternative configuration layout. For an approved external bind path, named volume, or PVC, declare its exact identity, owning service, ownership, and preservation policy in the manifest and installation state. Never infer ownership from a mount path. Shared runtime storage retains its native location.
 

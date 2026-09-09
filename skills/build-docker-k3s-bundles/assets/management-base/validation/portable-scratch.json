@@ -1,0 +1,35 @@
+{
+  "artifact_sha256": "fd7bcbe8148408f1a708d438106dc87e2b929a40086709a00de9884e65520212",
+  "passed": [
+    "all release file checksums",
+    "no ELF interpreter",
+    "no shared library dependencies",
+    "launcher works in relocated empty filesystem",
+    "static Python and curses available",
+    "help noninteractive",
+    "unknown command refuses",
+    "no arguments without TTY refuses",
+    "missing state refuses, no installer fallback",
+    "no host Python or shared libraries",
+    "stdlib compression and vendored YAML",
+    "PATH invocation",
+    "relative PATH invocation",
+    "fixed installed contract and root mismatch",
+    "TUI arrow navigation and Esc",
+    "TUI restores termios",
+    "Chinese edit and resize",
+    "terminal restored after exit",
+    "no TUI traceback",
+    "small TUI exit",
+    "terminal restored after exit",
+    "no TUI traceback"
+  ],
+  "success": true,
+  "scope": "Linux x86_64 scratch rootfs, network isolated, bundled static runtime",
+  "not_tested": [
+    "remote deployment of this artifact",
+    "ARM64",
+    "minimum kernel version",
+    "real Docker/firewall mutations by this test"
+  ]
+}

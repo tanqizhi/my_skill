@@ -10,6 +10,7 @@ bundle-name/
 |-- README.md
 |-- install.sh
 |-- manage.sh
+|-- manage.pyz                  Python modules and explicit command allowlist
 |-- checksums.txt
 |-- docs/
 |   |-- installation-guide.zh-CN.md
@@ -20,6 +21,7 @@ bundle-name/
 |-- runtime/
 |   |-- docker/
 |   |-- compose/
+|   |-- python/                Bundled static interpreter, stdlib and terminfo
 |   `-- k3s/
 |-- deploy/
 |   |-- docker/
@@ -46,14 +48,8 @@ bundle-name/
 |   |-- upgrade.sh
 |   `-- rollback.sh
 |-- management/
-|   |-- commands/               Independently loaded command modules
-|   |   |-- services.sh
-|   |   |-- reload.sh
-|   |   |-- exposure.sh
-|   |   `-- firewall.sh
-|   |-- lib/                    Shared dispatch, state, lock, log, and adapter helpers
-|   |-- python/                 Optional complex management modules and vendored code
-|   `-- commands.yaml           Explicit command-to-module registry
+|   |-- release.json            Manager source/runtime/platform identity
+|   `-- checksums.txt           Manager shipped-file checksums
 |-- state/                       Generated at runtime, includes installation.json
 |-- inventory/
 |   |-- nodes.example.yaml
@@ -77,8 +73,8 @@ For an installable bundle, `deployment-and-operations.md` is created or refreshe
 - SaaS bootstrap: apply declared data or configuration initialization for any dependency type only after its target is ready and before dependent SaaS starts.
 - Installation state: persist atomic stage checkpoints, input fingerprints, observed results, failure details, and recovery commands.
 - Uninstall: discover and remove only verified bundle-owned resources in reverse dependency order, preserve data by default, and retain resumable checkpoints and recovery information.
-- Management entrypoint: keep `manage.sh` limited to common initialization, command discovery, authorization, locking, and dispatch.
-- Management modules: implement start, stop, restart, status, version, import, switch, health, configuration reload, external exposure, and bundle-owned NAT behavior in separate shell or Python modules behind one stable command contract.
+- Management entrypoint: retain the supplied `manage.sh` portable launcher; parsing, authorization, locking and dispatch are Python responsibilities.
+- Management modules: reuse implemented Python operations. Add only confirmed missing capabilities as scoped Python extensions behind the same command contract; do not generate parallel Shell dispatchers.
 - Upgrade: calculate current-to-target differences, validate compatibility, back up configuration, apply changes, and retain rollback data.
 - Remote K3s: distribute only approved artifacts, verify node identity and architecture, execute bounded operations, and report per-node results.
 
@@ -123,9 +119,9 @@ Do not bundle `sshpass` by default. Use it only when password automation is expl
 - Check prerequisites before making changes.
 - Back up files before replacement and record how to restore them.
 - Separate generated defaults from user-managed overrides.
-- Load only the selected management module. Do not source every command implementation into `manage.sh`, use `eval` for dispatch, or execute unregistered files discovered from writable directories.
+- Reuse the portable Python manager and its explicit operation allowlist. Do not source implementations into `manage.sh`, use `eval` for dispatch, or execute unregistered files discovered from writable directories.
 - When a management feature uses Python, resolve it through the bundle's verified runtime wrapper and packaged dependency set. Do not download packages during an offline management operation.
-- Support `manage.sh reload` for validated, scoped reapplication of manually edited Compose or K3s YAML files according to `management-architecture-and-reload.md`.
+- Where quick reload is required, follow `management-architecture-and-reload.md`; the portable base does not yet implement it. Resolve the gap explicitly via a scoped extension, not a parallel manager or an unsupported documentation claim.
 - On every terminal operation outcome, attempt to write the Simplified Chinese `reports/deployment-and-operations.md`, then print its path in the console summary. Preserve the operation exit code if report generation fails.
 
 Read `saas-bootstrap-and-network-management.md` when the bundle includes SaaS, resumable installation, Docker or K3s external exposure, or bundle-owned NAT management.
