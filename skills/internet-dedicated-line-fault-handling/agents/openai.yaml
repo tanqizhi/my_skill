@@ -1,0 +1,4 @@
+interface:
+  display_name: "上网专线故障接维处理"
+  short_description: "分析OLT、MSE和3A排查结果并给出处置或派单建议"
+  default_prompt: "使用 $internet-dedicated-line-fault-handling 分析本次上网专线设备排查结果，并判断是否需要继续排查其他系统。"
