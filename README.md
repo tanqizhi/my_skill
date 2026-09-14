@@ -9,6 +9,7 @@
 - `network-secure`：精简的网络安全评估工作流 Skill，支持外部扫描、Linux SSH 内检、既有漏扫报告验证和领导版 HTML 报告。
 - `write-report`：将故障、测试、对比等技术材料整理为面向非技术领导的可编辑 Word 报告，强制把核心结论、关键指标、决定性证据和适用边界放进前两页，并附带统一 Word 母版。
 - `build-docker-k3s-bundles`：创建或改造 Docker、Docker Compose、K3s 容器安装包，支持全量、仅 PaaS、仅 SaaS、自定义、纯镜像和升级包，并包含依赖处理、安全确认、校验和测试流程。
+- `internet-dedicated-line-fault-handling-manual`：上网专线故障接维手动版，适用于4A内网隔离、人工搬运命令和回显的场景；逐轮明确设备类型、目标设备、视图和具体命令，并按内部组织职责给出派单、加派及挂单建议。
 
 ## 安装
 
@@ -21,6 +22,7 @@ cp -R skills/network-security-integrated-scanner ~/.agents/skills/
 cp -R skills/network-secure ~/.agents/skills/
 cp -R skills/write-report ~/.agents/skills/
 cp -R skills/build-docker-k3s-bundles ~/.agents/skills/
+cp -R skills/internet-dedicated-line-fault-handling-manual ~/.agents/skills/
 ```
 
 ## 目录结构

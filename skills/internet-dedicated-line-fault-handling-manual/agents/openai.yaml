@@ -1,0 +1,4 @@
+interface:
+  display_name: "上网专线故障接维（手动版）"
+  short_description: "人工搬运4A命令与回显，逐轮明确目标设备并给出排查、处置或派单建议"
+  default_prompt: "使用 $internet-dedicated-line-fault-handling-manual，根据我提供的工单、用户IP、OLT/MSE及LOID信息，给出本轮应查询的设备类型、目标设备、执行视图和具体命令；等我回传结果后再决定下一步。"
