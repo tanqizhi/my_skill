@@ -47,8 +47,8 @@ clouddesk-diag.exe exec "ps:Invoke-RestMethod -Uri http://127.0.0.1:19191/api/v1
 
 ## 二、加载配套技能
 
-- 设备会话的端点细节、副作用、未验证项 → `skill securecrt-rest-api`（或直接读
-  `/home/tanqizhi/.dsh/skills/securecrt-rest-api/SKILL.md`）。
+- 设备会话的端点细节、副作用、未验证项 → `skill securecrt-rest-api`（等价：读该技能目录下的
+  `SKILL.md` 与 `references/endpoint-contract.md`）。
 - 云电脑通道的部署、`status` 心跳判读、`exec`/`pull`/`push`/`cinput` 细节 → `skill clouddesk-diag`。
 - 本技能只讲**两条通道怎么配合**，不重复它们的操作手册。
 
@@ -92,10 +92,12 @@ clouddesk-diag.exe exec "ps:Get-NetIPConfiguration | Select-Object InterfaceAlia
 
 ### 4.1 投放桥脚本（一次）
 
-把本技能的 `scripts/scrt_api.ps1` 推到云电脑，之后所有 REST 调用都经它，避免多层引号：
+把本技能的 `scripts/scrt_api.ps1` 推到云电脑，之后所有 REST 调用都经它，避免多层引号。
+`<技能目录>` 是你安装本技能的位置：DSH 是 `~/.dsh/skills/securecrt-clouddesk`，
+Codex 等按 `~/.agents/skills/securecrt-clouddesk`。
 
 ```bash
-clouddesk-diag.exe push "/home/tanqizhi/.dsh/skills/securecrt-clouddesk/scripts/scrt_api.ps1" --to "C:\Users\Public"
+clouddesk-diag.exe push "<技能目录>/scripts/scrt_api.ps1" --to "C:\Users\Public"
 ```
 
 ### 4.2 在云电脑里启动 SecureCRT REST 脚本

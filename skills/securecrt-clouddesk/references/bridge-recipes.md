@@ -55,8 +55,11 @@ clouddesk-diag.exe pull "C:\Users\Public\scrt_out.txt"
 
 ## 投放桥脚本
 
+`<技能目录>` = 你安装本技能的位置（DSH：`~/.dsh/skills/securecrt-clouddesk`；
+Codex 等：`~/.agents/skills/securecrt-clouddesk`）。
+
 ```bash
-clouddesk-diag.exe push "/home/tanqizhi/.dsh/skills/securecrt-clouddesk/scripts/scrt_api.ps1" --to "C:\Users\Public"
+clouddesk-diag.exe push "<技能目录>/scripts/scrt_api.ps1" --to "C:\Users\Public"
 ```
 
 - 需要 agent 活着（`clouddesk-diag.exe status` 显示 `LIVE`）。agent 没起来先按 clouddesk-diag 技能
