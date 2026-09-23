@@ -1,0 +1,4 @@
+interface:
+  display_name: "互专故障接维（通道版：SecureCRT + 云电脑）"
+  short_description: "上网专线故障排查：白名单命令经 SecureCRT 会话执行/读回显，客户侧经云电脑通道核实，派单纪律不变"
+  default_prompt: "使用 $securecrt-clouddesk-dedicated-line：我把工单和资源给你，先加载人工版规则确定本轮查什么，再按通道现状给出'是人工粘贴还是经 REST 直发'的执行方式和取回显方法。"

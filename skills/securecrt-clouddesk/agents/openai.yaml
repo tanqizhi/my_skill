@@ -1,0 +1,4 @@
+interface:
+  display_name: "SecureCRT REST × 云电脑诊断"
+  short_description: "设备会话读写（SecureCRT REST）与客户云电脑诊断（clouddesk-diag）两条通道协同接维"
+  default_prompt: "使用 $securecrt-clouddesk：我这边既要看客户云电脑，也要操作设备会话。请先判定 SecureCRT 装在本机还是云电脑里，再分别给我两条通道的自检命令和本轮操作。"
