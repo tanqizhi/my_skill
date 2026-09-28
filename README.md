@@ -13,6 +13,7 @@
 - `securecrt-rest-api`：把 SecureCRT 里已连接的会话变成程序可读写的本地 HTTP 接口（只监听 127.0.0.1:19191，无鉴权）；可列 tab、读可见屏与滚动回显、发送命令文本、清屏、停服务。附端点契约与一个不需要 SecureCRT 就能跑的回归脚本，用于先验证端点行为再上真实环境。
 - `securecrt-clouddesk`：SecureCRT REST 通道与 clouddesk-diag 云电脑通道的协同用法；先判定 SecureCRT 装在本机还是装在云电脑里（4A 拉起），再给出对应的联合工作流，含云电脑侧桥接脚本 scrt_api.ps1 与通道失败模式对照表。
 - `securecrt-clouddesk-dedicated-line`：上网专线故障接维的通道增强版；诊断规则、4A 命令白名单、派单与挂单纪律全部沿用人工版，只把"手工搬运命令"换成经 SecureCRT REST 执行与读回显，并新增通道纪律（发命令前认设备、只读/直发两种模式、一条一发一读、回显落盘留痕、通道不可用时回退人工流程）与每轮输出模板。
+- `clouddiag-bridge`：经 RustDesk TCP 隧道用 HTTP 调用客户云电脑上的 CloudDiagBridge 命令转发器（`GET /v1/health`、`POST /v1/exec`）；工程师电脑只负责发请求，PowerShell 诊断脚本在客户云电脑执行。含链路与任务边界、开工前信息清单、10 条硬规则、七步工作流、请求上限约束、结果判定表、收尾交接模板，以及目标端脚本编写规则与管理员版切换步骤。
 
 ## 安装
 
@@ -29,6 +30,7 @@ cp -R skills/internet-dedicated-line-fault-handling-manual ~/.agents/skills/
 cp -R skills/securecrt-rest-api ~/.agents/skills/
 cp -R skills/securecrt-clouddesk ~/.agents/skills/
 cp -R skills/securecrt-clouddesk-dedicated-line ~/.agents/skills/
+cp -R skills/clouddiag-bridge ~/.agents/skills/
 ```
 
 ## 目录结构
